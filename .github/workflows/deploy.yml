@@ -214,12 +214,12 @@ jobs:
 
           # Update the container image in task definition
           jq --arg IMAGE "${NEW_IMAGE}" \
-             --arg ENV "${{ needs.setup.outputs.node-env }}" \
-             --arg PUBLIC_ENV "${{ needs.setup.outputs.environment }}" \
+             --arg NODE_ENV "${{ needs.setup.outputs.node-env }}" \
+             --arg NEXT_PUBLIC_ENV "${{ needs.setup.outputs.environment }}" \
              '.containerDefinitions[0].image = $IMAGE |
               .containerDefinitions[0].environment = [
-                {"name": "NODE_ENV", "value": $ENV},
-                {"name": "NEXT_PUBLIC_ENV", "value": $PUBLIC_ENV}
+                {"name": "NODE_ENV", "value": $NODE_ENV},
+                {"name": "NEXT_PUBLIC_ENV", "value": $NEXT_PUBLIC_ENV}
               ]' \
             task-def-clean.json > task-definition-new.json
 
