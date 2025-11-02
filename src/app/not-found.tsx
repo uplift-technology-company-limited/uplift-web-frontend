@@ -4,9 +4,7 @@ import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
 import dynamic from "next/dynamic"
 
-const Player = dynamic(() => import("@lottiefiles/react-lottie-player").then(mod => ({ default: mod.Player })), {
-  ssr: false
-})
+const Lottie = dynamic(() => import("lottie-react"), { ssr: false })
 
 interface Particle {
   x: number
@@ -29,6 +27,15 @@ interface Star {
 export default function NotFound() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [stars, setStars] = useState<Star[]>([])
+  const [animationData, setAnimationData] = useState<any>(null)
+
+  useEffect(() => {
+    // Fetch Lottie animation data
+    fetch('/lottie/whitecat.json')
+      .then(res => res.json())
+      .then(data => setAnimationData(data))
+      .catch(err => console.error('Failed to load animation:', err))
+  }, [])
 
   useEffect(() => {
     // Generate background stars (stationary)
@@ -164,14 +171,15 @@ export default function NotFound() {
       <canvas ref={canvasRef} className="absolute inset-0 z-5 pointer-events-none" />
 
       {/* White Cat Lottie Animation */}
-      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 z-20">
-        <Player
-          autoplay
-          loop
-          src="/lottie/whitecat.json"
-          style={{ height: '500px', width: '500px' }}
-        />
-      </div>
+      {animationData && (
+        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 z-20">
+          <Lottie
+            animationData={animationData}
+            loop={true}
+            style={{ height: '500px', width: '500px' }}
+          />
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="relative z-30 text-center text-white space-y-8">
