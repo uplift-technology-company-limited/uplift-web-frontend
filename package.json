@@ -9,7 +9,9 @@
     "copy-standalone": "cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/",
     "start": "node .next/standalone/server.js",
     "start:next": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "pre-push": "bash scripts/pre-push-check.sh"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

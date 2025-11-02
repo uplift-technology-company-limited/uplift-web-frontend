@@ -2,6 +2,35 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## ⚠️ CRITICAL: Pre-Push Checklist
+
+**BEFORE EVERY COMMIT AND PUSH, YOU MUST RUN THESE CHECKS IN ORDER:**
+
+1. **ESLint Check**
+   ```bash
+   npm run lint
+   ```
+   - ✅ Must pass with ZERO errors
+   - ⚠️ Address warnings when reasonable
+   - ❌ DO NOT proceed if errors exist
+
+2. **TypeScript Type Check**
+   ```bash
+   npx tsc --noEmit
+   ```
+   - ✅ Must pass with ZERO type errors
+   - ❌ Fix all type safety issues before proceeding
+
+3. **Production Build Test**
+   ```bash
+   npm run build
+   ```
+   - ✅ Must build successfully with ZERO errors
+   - ✅ All static pages must generate correctly
+   - ❌ DO NOT push if build fails
+
+**⛔ NEVER commit or push code that fails any of these checks!**
+
 ## Development Commands
 
 - **Development server**: `npm run dev` (uses Turbopack for faster builds on port 4000)
