@@ -157,7 +157,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            NODE_ENV=${{ needs.setup.outputs.node-env }}
+            NODE_ENV=production
             NEXT_PUBLIC_ENV=${{ needs.setup.outputs.environment }}
           cache-from: type=gha,scope=${{ needs.setup.outputs.environment }}
           cache-to: type=gha,mode=max,scope=${{ needs.setup.outputs.environment }}
