@@ -58,9 +58,6 @@ export function NavSheet({ user, onClose, navItems, isMobile = false }: NavSheet
     role.type === 'admin' || role.pathRoles === 'admin'
   );
 
-  console.log('🔍 NavSheet - User roles:', user?.roles);
-  console.log('🔍 NavSheet - Has admin role:', hasAdminRole);
-
   return (
     <div className="flex flex-col gap-6 p-6">
       {/* User Info - only show if logged in */}
