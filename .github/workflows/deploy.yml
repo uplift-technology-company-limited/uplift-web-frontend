@@ -220,7 +220,8 @@ jobs:
               .containerDefinitions[0].environment = [
                 {"name": "NODE_ENV", "value": $NODE_ENV},
                 {"name": "NEXT_PUBLIC_ENV", "value": $NEXT_PUBLIC_ENV}
-              ]' \
+              ] |
+              .containerDefinitions[0].portMappings[0].hostPort = 0' \
             task-def-clean.json > task-definition-new.json
 
           echo "📋 Updated Task Definition:"
