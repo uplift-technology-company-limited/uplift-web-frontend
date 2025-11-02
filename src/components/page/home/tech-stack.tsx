@@ -1,11 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Section } from '@/components/ui/section';
 import { AnimateEffect } from '@/components/common/animate-effect';
 import { useTechModal } from '@/lib/providers/tech-modal-provider';
 import { getTechIcon } from '@/lib/utils/icon-mapper';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
+import { ChevronDown } from 'lucide-react';
 
 interface TechItem {
   name: string;
@@ -40,8 +41,11 @@ const categoryLabels = {
   ai: 'AI & Automation'
 };
 
+const INITIAL_DISPLAY_COUNT = 8;
+
 export const TechStack = ({ data }: TechStackProps) => {
   const { openTechModal } = useTechModal();
+  const [showAll, setShowAll] = useState(false);
 
   // Flatten all categories into single array
   const techStackData = [
@@ -51,6 +55,10 @@ export const TechStack = ({ data }: TechStackProps) => {
     ...data.categories.infrastructure,
     ...data.categories.ai,
   ];
+
+  // Split data into initial and remaining items
+  const displayedTech = showAll ? techStackData : techStackData.slice(0, INITIAL_DISPLAY_COUNT);
+  const hasMore = techStackData.length > INITIAL_DISPLAY_COUNT;
 
   return (
     <Section className="bg-gradient-to-b from-muted/30 to-background py-20 md:py-32 relative overflow-hidden">
@@ -102,99 +110,127 @@ export const TechStack = ({ data }: TechStackProps) => {
 
         {/* Animated Icon Wall - Masonry/Bento Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6 mb-12">
-          {techStackData.map((tech, index) => (
-            <AnimateEffect key={tech.name} index={index + 1}>
-              <motion.div
-                className={`relative group cursor-pointer ${
-                  // Create masonry effect with different heights
-                  index % 7 === 0 || index % 11 === 0 ? 'md:row-span-2' : ''
-                }`}
-                onClick={() => openTechModal({
-                  ...tech,
-                  icon: getTechIcon(tech.name)
-                })}
-                whileHover={{ scale: 1.05, zIndex: 10 }}
-                whileTap={{ scale: 0.95 }}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-              >
-                {/* Card with Glow Effect */}
-                <div className="relative h-full min-h-[140px] bg-card/50 backdrop-blur-sm border border-border rounded-2xl p-6 overflow-hidden transition-all duration-300 hover:border-primary/50 hover:bg-card group-hover:shadow-2xl">
+          <AnimatePresence mode="popLayout">
+            {displayedTech.map((tech, index) => (
+              <AnimateEffect key={tech.name} index={index + 1}>
+                <motion.div
+                  layout
+                  className={`relative group cursor-pointer ${
+                    // Create masonry effect with different heights
+                    index % 7 === 0 || index % 11 === 0 ? 'md:row-span-2' : ''
+                  }`}
+                  onClick={() => openTechModal({
+                    ...tech,
+                    icon: getTechIcon(tech.name)
+                  })}
+                  whileHover={{ scale: 1.05, zIndex: 10 }}
+                  whileTap={{ scale: 0.95 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ delay: index * 0.05 }}
+                >
+                  {/* Card with Glow Effect */}
+                  <div className="relative h-full min-h-[140px] bg-card/50 backdrop-blur-sm border border-border rounded-2xl p-6 overflow-hidden transition-all duration-300 hover:border-primary/50 hover:bg-card group-hover:shadow-2xl">
 
-                  {/* Animated Gradient Border on Hover */}
-                  <motion.div
-                    className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    style={{
-                      background: `linear-gradient(135deg, ${tech.color.replace('from-', '').replace('to-', ', ')})`,
-                      padding: '2px',
-                      WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                      WebkitMaskComposite: 'xor',
-                      maskComposite: 'exclude',
-                    }}
-                  />
-
-                  {/* Pulse Animation */}
-                  <motion.div
-                    className={`absolute inset-0 bg-gradient-to-br ${tech.color} opacity-0`}
-                    animate={{
-                      opacity: [0, 0.1, 0],
-                      scale: [0.8, 1.2, 0.8],
-                    }}
-                    transition={{
-                      duration: 3,
-                      repeat: Infinity,
-                      delay: index * 0.2,
-                    }}
-                  />
-
-                  {/* Content */}
-                  <div className="relative z-10 flex flex-col items-center justify-center h-full text-center space-y-3">
-                    {/* Icon with Glow */}
+                    {/* Animated Gradient Border on Hover */}
                     <motion.div
-                      className={`w-14 h-14 flex items-center justify-center rounded-xl bg-gradient-to-br ${tech.color} text-white shadow-lg`}
+                      className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                       style={{
-                        boxShadow: `0 0 20px ${tech.color.includes('blue') ? 'rgba(59, 130, 246, 0.4)' :
-                                             tech.color.includes('purple') ? 'rgba(168, 85, 247, 0.4)' :
-                                             tech.color.includes('green') ? 'rgba(34, 197, 94, 0.4)' :
-                                             tech.color.includes('orange') ? 'rgba(249, 115, 22, 0.4)' :
-                                             'rgba(139, 92, 246, 0.4)'}`,
+                        background: `linear-gradient(135deg, ${tech.color.replace('from-', '').replace('to-', ', ')})`,
+                        padding: '2px',
+                        WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                        WebkitMaskComposite: 'xor',
+                        maskComposite: 'exclude',
                       }}
+                    />
+
+                    {/* Pulse Animation */}
+                    <motion.div
+                      className={`absolute inset-0 bg-gradient-to-br ${tech.color} opacity-0`}
                       animate={{
-                        rotate: [0, 5, -5, 0],
+                        opacity: [0, 0.1, 0],
+                        scale: [0.8, 1.2, 0.8],
                       }}
                       transition={{
-                        duration: 4,
+                        duration: 3,
                         repeat: Infinity,
-                        delay: index * 0.3,
+                        delay: index * 0.2,
                       }}
-                    >
-                      {getTechIcon(tech.name)}
-                    </motion.div>
+                    />
 
-                    {/* Name */}
-                    <div>
-                      <h4 className="text-base font-bold text-foreground mb-1">
-                        {tech.name}
-                      </h4>
-                      <p className="text-xs text-muted-foreground line-clamp-2">
-                        {tech.tagline}
-                      </p>
+                    {/* Content */}
+                    <div className="relative z-10 flex flex-col items-center justify-center h-full text-center space-y-3">
+                      {/* Icon with Glow */}
+                      <motion.div
+                        className={`w-14 h-14 flex items-center justify-center rounded-xl bg-gradient-to-br ${tech.color} text-white shadow-lg`}
+                        style={{
+                          boxShadow: `0 0 20px ${tech.color.includes('blue') ? 'rgba(59, 130, 246, 0.4)' :
+                                               tech.color.includes('purple') ? 'rgba(168, 85, 247, 0.4)' :
+                                               tech.color.includes('green') ? 'rgba(34, 197, 94, 0.4)' :
+                                               tech.color.includes('orange') ? 'rgba(249, 115, 22, 0.4)' :
+                                               'rgba(139, 92, 246, 0.4)'}`,
+                        }}
+                        animate={{
+                          rotate: [0, 5, -5, 0],
+                        }}
+                        transition={{
+                          duration: 4,
+                          repeat: Infinity,
+                          delay: index * 0.3,
+                        }}
+                      >
+                        {getTechIcon(tech.name)}
+                      </motion.div>
+
+                      {/* Name */}
+                      <div>
+                        <h4 className="text-base font-bold text-foreground mb-1">
+                          {tech.name}
+                        </h4>
+                        <p className="text-xs text-muted-foreground line-clamp-2">
+                          {tech.tagline}
+                        </p>
+                      </div>
+
+                      {/* Category Badge */}
+                      <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                        {categoryLabels[tech.category]}
+                      </span>
                     </div>
 
-                    {/* Category Badge */}
-                    <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                      {categoryLabels[tech.category]}
-                    </span>
+                    {/* Corner Accent */}
+                    <div className={`absolute top-2 right-2 w-2 h-2 rounded-full bg-gradient-to-br ${tech.color} opacity-60`} />
                   </div>
-
-                  {/* Corner Accent */}
-                  <div className={`absolute top-2 right-2 w-2 h-2 rounded-full bg-gradient-to-br ${tech.color} opacity-60`} />
-                </div>
-              </motion.div>
-            </AnimateEffect>
-          ))}
+                </motion.div>
+              </AnimateEffect>
+            ))}
+          </AnimatePresence>
         </div>
+
+        {/* Look More Button */}
+        {hasMore && (
+          <AnimateEffect index={displayedTech.length + 1}>
+            <div className="flex justify-center">
+              <motion.button
+                onClick={() => setShowAll(!showAll)}
+                className="group relative inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-primary/10 to-purple-500/10 hover:from-primary/20 hover:to-purple-500/20 border border-primary/20 rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-primary/20"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <span className="text-base font-semibold bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">
+                  {showAll ? 'Show Less' : 'Look More'}
+                </span>
+                <motion.div
+                  animate={{ rotate: showAll ? 180 : 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <ChevronDown className="w-5 h-5 text-primary" />
+                </motion.div>
+              </motion.button>
+            </div>
+          </AnimateEffect>
+        )}
 
       </div>
     </Section>

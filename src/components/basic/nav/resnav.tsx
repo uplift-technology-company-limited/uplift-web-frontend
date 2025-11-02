@@ -118,14 +118,12 @@ export default function DesktopNav() {
                                 )}
                             </SheetTrigger>
                             <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-                                {user && (
-                                    <NavSheet
-                                        user={user}
-                                        navItems={navItems}
-                                        isMobile={true}
-                                        onClose={() => setIsMobileMenuOpen(false)}
-                                    />
-                                )}
+                                <NavSheet
+                                    user={user}
+                                    navItems={navItems}
+                                    isMobile={true}
+                                    onClose={() => setIsMobileMenuOpen(false)}
+                                />
                             </SheetContent>
                         </Sheet>
                     </div>

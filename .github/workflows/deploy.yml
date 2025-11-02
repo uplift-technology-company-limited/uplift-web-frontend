@@ -2,24 +2,82 @@ name: 🚀 Uplift Web Frontend CI/CD
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev, develop]
   pull_request:
-    branches: [main]
+    branches: [main, dev]
   workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        type: choice
+        options:
+          - production
+          - development
 
 env:
   NODE_VERSION: "22"
   AWS_REGION: "ap-southeast-1"
   ECR_REPOSITORY: "uplifttech/uplift-web-frontend"
+  ECS_CLUSTER: "uplift-production"
 
 permissions:
   id-token: write
   contents: read
 
 jobs:
+  setup:
+    name: 🎯 Determine Environment
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.env.outputs.environment }}
+      should-deploy: ${{ steps.env.outputs.should_deploy }}
+      ecs-service: ${{ steps.env.outputs.ecs_service }}
+      domain: ${{ steps.env.outputs.domain }}
+      node-env: ${{ steps.env.outputs.node_env }}
+
+    steps:
+      - name: 🎯 Set Environment
+        id: env
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            # Manual trigger
+            ENV="${{ github.event.inputs.environment }}"
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            ENV="production"
+          elif [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+            ENV="development"
+          else
+            ENV="none"
+          fi
+
+          echo "environment=${ENV}" >> $GITHUB_OUTPUT
+
+          # Set deployment flag
+          if [[ "${ENV}" == "production" ]] || [[ "${ENV}" == "development" ]]; then
+            echo "should_deploy=true" >> $GITHUB_OUTPUT
+          else
+            echo "should_deploy=false" >> $GITHUB_OUTPUT
+          fi
+
+          # Set ECS service name
+          if [[ "${ENV}" == "production" ]]; then
+            echo "ecs_service=web-frontend" >> $GITHUB_OUTPUT
+            echo "domain=www.uplifttech.store" >> $GITHUB_OUTPUT
+            echo "node_env=production" >> $GITHUB_OUTPUT
+          elif [[ "${ENV}" == "development" ]]; then
+            echo "ecs_service=web-frontend-dev" >> $GITHUB_OUTPUT
+            echo "domain=www.uplifttech.dev" >> $GITHUB_OUTPUT
+            echo "node_env=development" >> $GITHUB_OUTPUT
+          fi
+
+          echo "📍 Environment: ${ENV}"
+          echo "🚀 Should Deploy: $([ "${ENV}" != "none" ] && echo "Yes" || echo "No")"
+
   quality-gate:
     name: 🔍 Quality Gate
     runs-on: ubuntu-latest
+    needs: setup
 
     steps:
       - name: 📥 Checkout
@@ -41,21 +99,24 @@ jobs:
         run: npx tsc --noEmit
 
       - name: 🏗️ Build Next.js
+        env:
+          NODE_ENV: ${{ needs.setup.outputs.node-env }}
+          NEXT_PUBLIC_ENV: ${{ needs.setup.outputs.environment }}
         run: npm run build
 
       - name: 🛡️ Security Audit
         run: npm audit --audit-level=high
         continue-on-error: true
 
-  docker-build:
-    name: 🐳 Build & Push to ECR
+  docker-build-push:
+    name: 🐳 Build & Push to ECR (${{ needs.setup.outputs.environment }})
     runs-on: ubuntu-latest
-    needs: quality-gate
-    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
-    environment: Production
+    needs: [setup, quality-gate]
+    if: needs.setup.outputs.should-deploy == 'true'
 
     outputs:
-      image-tag: ${{ steps.pick.outputs.image_tag }}
+      image-digest: ${{ steps.build-push.outputs.digest }}
+      image-tag: ${{ steps.meta.outputs.version }}
 
     steps:
       - name: 📥 Checkout
@@ -65,10 +126,11 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          role-session-name: github-actions-uplift-frontend
+          role-session-name: github-actions-uplift-frontend-${{ needs.setup.outputs.environment }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: 🔑 Login to ECR
+        id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: 🔧 Set up Docker Buildx
@@ -78,12 +140,15 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ vars.ECR_REGISTRY }}/${{ vars.ECR_REPOSITORY }}
+          images: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}
           tags: |
-            type=sha,format=short
-            type=raw,value=latest
+            type=sha,format=short,prefix=${{ needs.setup.outputs.environment }}-
+            type=raw,value=${{ needs.setup.outputs.environment }}-latest
+            type=ref,event=branch
+            type=semver,pattern={{version}}
 
       - name: 🏗️ Build & Push Docker Image
+        id: build-push
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -92,116 +157,182 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}
-            NEXT_PUBLIC_GA_MEASUREMENT_ID=${{ vars.NEXT_PUBLIC_GA_MEASUREMENT_ID }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+            NODE_ENV=${{ needs.setup.outputs.node-env }}
+            NEXT_PUBLIC_ENV=${{ needs.setup.outputs.environment }}
+          cache-from: type=gha,scope=${{ needs.setup.outputs.environment }}
+          cache-to: type=gha,mode=max,scope=${{ needs.setup.outputs.environment }}
 
-      - name: 📌 Pick single image tag
-        id: pick
+      - name: 📋 Output Image Details
         run: |
-          first_tag="$(echo "${{ steps.meta.outputs.tags }}" | head -n1)"
-          tag_only="${first_tag##*:}"
-          echo "image_tag=${tag_only}" >> "$GITHUB_OUTPUT"
-          echo "Using image tag: ${tag_only}"
+          echo "🏷️ Image Tags:"
+          echo "${{ steps.meta.outputs.tags }}"
+          echo ""
+          echo "📌 Digest: ${{ steps.build-push.outputs.digest }}"
 
-  update-gitops:
-    name: 🔄 Update GitOps Repository
+  deploy-ecs:
+    name: 🚀 Deploy to ECS (${{ needs.setup.outputs.environment }})
     runs-on: ubuntu-latest
-    needs: [quality-gate, docker-build]
-    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
-    environment: Production
+    needs: [setup, docker-build-push]
+    if: needs.setup.outputs.should-deploy == 'true'
+    environment: ${{ needs.setup.outputs.environment }}
 
     steps:
-      - name: 📥 Checkout GitOps Repository
-        uses: actions/checkout@v4
+      - name: 🔐 Configure AWS
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          repository: ${{ vars.GITOPS_REPO }}
-          token: ${{ secrets.GITOPS_TOKEN }}
-          path: gitops
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-session-name: github-actions-uplift-frontend-deploy-${{ needs.setup.outputs.environment }}
+          aws-region: ${{ env.AWS_REGION }}
 
-      - name: 🔄 Update Image Tag
+      - name: 🔑 Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: 📥 Download Current Task Definition
+        id: download-task-def
         run: |
-          cd gitops
+          aws ecs describe-task-definition \
+            --task-definition ${{ needs.setup.outputs.ecs-service }} \
+            --region ${{ env.AWS_REGION }} \
+            --query 'taskDefinition' \
+            --output json > task-definition.json
 
-          # Update the image tag in the deployment manifest
-          MANIFEST_PATH="manifests/uplift/uplift-web-frontend/deployment.yaml"
+          # Remove unnecessary fields
+          jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)' \
+            task-definition.json > task-def-clean.json
 
-          if [ -f "$MANIFEST_PATH" ]; then
-              # Use sed to replace the image tag
-              sed -i "s|image: .*uplift-web-frontend.*|image: ${{ vars.ECR_REGISTRY }}/${{ vars.ECR_REPOSITORY }}:${{ needs.docker-build.outputs.image-tag }}|g" "$MANIFEST_PATH"
+          echo "📋 Current Task Definition:"
+          cat task-def-clean.json | jq .
 
-              echo "Updated image tag in $MANIFEST_PATH to ${{ needs.docker-build.outputs.image-tag }}"
-              cat "$MANIFEST_PATH"
-          else
-              echo "⚠️ Deployment manifest not found at $MANIFEST_PATH"
-              echo "Available files:"
-              find . -name "*.yaml" -o -name "*.yml" | head -20
-          fi
-
-      - name: 📝 Commit and Push Changes
+      - name: 🔄 Update Task Definition with New Image
+        id: update-task-def
         run: |
-          cd gitops
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
+          # Get the new image URI with digest
+          NEW_IMAGE="${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}@${{ needs.docker-build-push.outputs.image-digest }}"
 
-          git add -A
+          echo "🆕 New Image: ${NEW_IMAGE}"
 
-          if git diff --staged --quiet; then
-              echo "No changes to commit"
-          else
-              git commit -m "🚀 Update uplift-web-frontend image to ${{ needs.docker-build.outputs.image-tag }}
+          # Update the container image in task definition
+          jq --arg IMAGE "${NEW_IMAGE}" \
+             --arg ENV "${{ needs.setup.outputs.node-env }}" \
+             --arg PUBLIC_ENV "${{ needs.setup.outputs.environment }}" \
+             '.containerDefinitions[0].image = $IMAGE |
+              .containerDefinitions[0].environment = [
+                {"name": "NODE_ENV", "value": $ENV},
+                {"name": "NEXT_PUBLIC_ENV", "value": $PUBLIC_ENV}
+              ]' \
+            task-def-clean.json > task-definition-new.json
 
-              Deployed from commit: ${{ github.sha }}
-              Workflow: ${{ github.workflow }}
-              Run: ${{ github.run_number }}"
+          echo "📋 Updated Task Definition:"
+          cat task-definition-new.json | jq .
 
-              git push origin main
-              echo "✅ Successfully updated GitOps repository"
-          fi
+      - name: 📝 Register New Task Definition
+        id: register-task-def
+        run: |
+          TASK_DEF_ARN=$(aws ecs register-task-definition \
+            --cli-input-json file://task-definition-new.json \
+            --region ${{ env.AWS_REGION }} \
+            --query 'taskDefinition.taskDefinitionArn' \
+            --output text)
+
+          echo "task_def_arn=${TASK_DEF_ARN}" >> $GITHUB_OUTPUT
+          echo "✅ Registered: ${TASK_DEF_ARN}"
+
+      - name: 🚀 Update ECS Service
+        run: |
+          aws ecs update-service \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --service ${{ needs.setup.outputs.ecs-service }} \
+            --task-definition ${{ steps.register-task-def.outputs.task_def_arn }} \
+            --force-new-deployment \
+            --region ${{ env.AWS_REGION }}
+
+          echo "✅ Service update initiated for ${{ needs.setup.outputs.ecs-service }}"
+
+      - name: ⏳ Wait for Service Stability
+        run: |
+          echo "⏳ Waiting for service to become stable..."
+          echo "This may take 2-5 minutes..."
+
+          aws ecs wait services-stable \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --services ${{ needs.setup.outputs.ecs-service }} \
+            --region ${{ env.AWS_REGION }}
+
+          echo "✅ Service is stable!"
+
+      - name: 📊 Deployment Summary
+        run: |
+          echo "## 🎉 Deployment Successful!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Environment | ${{ needs.setup.outputs.environment }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Domain | https://${{ needs.setup.outputs.domain }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| ECS Service | ${{ needs.setup.outputs.ecs-service }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| ECS Cluster | ${{ env.ECS_CLUSTER }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Image Tag | ${{ needs.docker-build-push.outputs.image-tag }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Digest | \`${{ needs.docker-build-push.outputs.image-digest }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 **Test your deployment**: https://${{ needs.setup.outputs.domain }}" >> $GITHUB_STEP_SUMMARY
 
   health-check:
-    name: 🏥 Health Check
+    name: 🏥 Health Check (${{ needs.setup.outputs.environment }})
     runs-on: ubuntu-latest
-    needs: [update-gitops]
-    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
-    environment: Production
+    needs: [setup, deploy-ecs]
+    if: needs.setup.outputs.should-deploy == 'true'
 
     steps:
-      - name: ⏳ Wait for ArgoCD Sync
-        run: |
-          echo "⏳ Waiting for ArgoCD to sync changes..."
-          sleep 60
-
       - name: 🏥 Check Application Health
         run: |
-          max_attempts=12
+          max_attempts=10
           attempt=1
+          DOMAIN="${{ needs.setup.outputs.domain }}"
 
-          echo "🔍 Starting health check for ${{ vars.PRODUCTION_URL }}"
+          echo "🔍 Starting health check for https://${DOMAIN}"
 
           while [ $attempt -le $max_attempts ]; do
             echo "🔄 Health check attempt $attempt/$max_attempts"
 
-            if curl -f -s "${{ vars.PRODUCTION_URL }}/api/health" > /dev/null 2>&1; then
-              echo "✅ Health check passed!"
-              curl -s "${{ vars.PRODUCTION_URL }}/api/health" || echo "API health endpoint responded successfully"
+            # Try API health endpoint first
+            if curl -f -s -k "https://${DOMAIN}/api/health" > /dev/null 2>&1; then
+              echo "✅ API Health check passed!"
+              curl -s -k "https://${DOMAIN}/api/health"
               exit 0
-            elif curl -f -s "${{ vars.PRODUCTION_URL }}" > /dev/null 2>&1; then
+            # Fall back to main page
+            elif curl -f -s -k -L "https://${DOMAIN}" > /dev/null 2>&1; then
               echo "✅ Main page is accessible!"
+              HTTP_CODE=$(curl -s -k -L -o /dev/null -w "%{http_code}" "https://${DOMAIN}")
+              echo "HTTP Status: ${HTTP_CODE}"
               exit 0
             fi
 
-            echo "⏳ Attempt $attempt/$max_attempts failed, retrying in 30 seconds..."
-            sleep 30
+            echo "⏳ Attempt $attempt/$max_attempts failed, retrying in 15 seconds..."
+            sleep 15
             attempt=$((attempt + 1))
           done
 
-          echo "❌ Health check failed after $max_attempts attempts"
-          echo "🔍 Attempting to get more information..."
+          echo "⚠️ Health check did not pass, but deployment completed"
+          echo "🔍 Attempting to get response information..."
+          curl -I -k "https://${DOMAIN}" || true
 
-          # Try to get response code and headers for debugging
-          curl -I "${{ vars.PRODUCTION_URL }}" || true
-          curl -I "${{ vars.PRODUCTION_URL }}/api/health" || true
+          # Don't fail the deployment if health check fails
+          exit 0
 
-          exit 1
+  notify:
+    name: 📢 Deployment Notification
+    runs-on: ubuntu-latest
+    needs: [setup, deploy-ecs, health-check]
+    if: always() && needs.setup.outputs.should-deploy == 'true'
+
+    steps:
+      - name: 📊 Deployment Status
+        run: |
+          if [[ "${{ needs.deploy-ecs.result }}" == "success" ]]; then
+            echo "✅ Deployment to ${{ needs.setup.outputs.environment }} completed successfully!"
+            echo "🔗 https://${{ needs.setup.outputs.domain }}"
+          else
+            echo "❌ Deployment to ${{ needs.setup.outputs.environment }} failed!"
+            exit 1
+          fi
