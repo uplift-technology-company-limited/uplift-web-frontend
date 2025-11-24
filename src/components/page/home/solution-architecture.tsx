@@ -12,7 +12,6 @@ import {
   SiGrafana,
   SiNginx
 } from 'react-icons/si';
-import { TbBrandGolang } from 'react-icons/tb';
 import { FaServer, FaNetworkWired, FaShieldAlt, FaChartLine } from 'react-icons/fa';
 
 interface ArchitectureFeature {
@@ -200,103 +199,6 @@ export const SolutionArchitecture = () => {
             </AnimateEffect>
           ))}
         </div>
-
-        {/* Architecture Diagram */}
-        <AnimateEffect index={5}>
-          <div className="bg-card border border-border rounded-2xl p-8 md:p-12">
-            <h3 className="text-2xl font-bold text-center mb-12">
-              Complete Infrastructure Stack
-            </h3>
-
-            {/* Simplified Diagram */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
-
-              {/* Layer 1: Load Balancer */}
-              <motion.div
-                className="relative"
-                whileHover={{ scale: 1.05 }}
-              >
-                <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border-2 border-blue-500/50 rounded-xl p-6 text-center">
-                  <FaNetworkWired className="w-12 h-12 mx-auto mb-4 text-blue-500" />
-                  <h4 className="font-bold text-foreground mb-2">Load Balancer</h4>
-                  <p className="text-sm text-muted-foreground">Nginx / Ingress</p>
-                </div>
-
-                {/* Arrow */}
-                <div className="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2">
-                  <motion.div
-                    animate={{ x: [0, 8, 0] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  >
-                    <div className="text-primary text-2xl">→</div>
-                  </motion.div>
-                </div>
-              </motion.div>
-
-              {/* Layer 2: Kubernetes Cluster */}
-              <motion.div
-                className="relative"
-                whileHover={{ scale: 1.05 }}
-              >
-                <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-2 border-purple-500/50 rounded-xl p-6 text-center">
-                  <SiKubernetes className="w-12 h-12 mx-auto mb-4 text-purple-500" />
-                  <h4 className="font-bold text-foreground mb-2">K8s Cluster</h4>
-                  <p className="text-sm text-muted-foreground">Orchestration Layer</p>
-
-                  {/* Microservices */}
-                  <div className="mt-4 flex justify-center gap-2">
-                    {[1, 2, 3].map((i) => (
-                      <motion.div
-                        key={i}
-                        className="w-8 h-8 bg-purple-500/30 rounded-lg flex items-center justify-center"
-                        animate={{ y: [0, -4, 0] }}
-                        transition={{ duration: 2, repeat: Infinity, delay: i * 0.2 }}
-                      >
-                        <TbBrandGolang className="w-4 h-4 text-purple-400" />
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Arrow */}
-                <div className="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2">
-                  <motion.div
-                    animate={{ x: [0, 8, 0] }}
-                    transition={{ duration: 2, repeat: Infinity, delay: 0.3 }}
-                  >
-                    <div className="text-primary text-2xl">→</div>
-                  </motion.div>
-                </div>
-              </motion.div>
-
-              {/* Layer 3: Data Layer */}
-              <motion.div
-                className="relative"
-                whileHover={{ scale: 1.05 }}
-              >
-                <div className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 border-2 border-green-500/50 rounded-xl p-6 text-center">
-                  <FaServer className="w-12 h-12 mx-auto mb-4 text-green-500" />
-                  <h4 className="font-bold text-foreground mb-2">Data Layer</h4>
-                  <p className="text-sm text-muted-foreground">Database & Cache</p>
-                </div>
-              </motion.div>
-            </div>
-
-            {/* Infrastructure as Code Layer */}
-            <motion.div
-              className="mt-8 bg-gradient-to-r from-orange-500/10 to-yellow-500/10 border border-orange-500/30 rounded-xl p-6 text-center"
-              whileHover={{ scale: 1.02 }}
-            >
-              <div className="flex items-center justify-center gap-3 mb-3">
-                <SiTerraform className="w-8 h-8 text-purple-500" />
-                <h4 className="font-bold text-foreground">Infrastructure as Code</h4>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                ทุก infrastructure จัดการผ่าน Terraform - version controlled, reproducible, automated
-              </p>
-            </motion.div>
-          </div>
-        </AnimateEffect>
 
         {/* Tech Components */}
         <AnimateEffect index={6}>
