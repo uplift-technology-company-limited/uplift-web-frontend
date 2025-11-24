@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 
-const World = dynamic(() => import("@/components/ui/globe").then((m) => m.World), {
+const World = dynamic(() => import("@/components/ui/globe-custom").then((m) => m.World), {
   ssr: false,
 })
 

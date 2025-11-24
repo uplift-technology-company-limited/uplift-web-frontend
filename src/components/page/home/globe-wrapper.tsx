@@ -4,7 +4,7 @@ import React from "react";
 import dynamic from "next/dynamic";
 import { useTheme } from "next-themes";
 
-const World = dynamic(() => import("@/components/ui/globe").then((m) => m.World), {
+const World = dynamic(() => import("@/components/ui/globe-custom").then((m) => m.World), {
     ssr: false,
     loading: () => (
         <div className="flex items-center justify-center h-full w-full">
