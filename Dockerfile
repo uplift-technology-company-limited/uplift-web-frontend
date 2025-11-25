@@ -7,7 +7,17 @@ RUN apk add --no-cache libc6-compat
 
 # Install dependencies
 COPY package.json package-lock.json ./
-RUN npm ci
+
+# Configure npm for better reliability
+RUN npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-retry-maxtimeout 120000 && \
+    npm config set fetch-timeout 300000
+
+# Install dependencies with retry logic and cache mount
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --prefer-offline --no-audit || \
+    (echo "First attempt failed, retrying..." && sleep 5 && npm ci --prefer-offline --no-audit) || \
+    (echo "Second attempt failed, retrying..." && sleep 10 && npm ci --no-audit)
 
 # Copy source files
 COPY . .
