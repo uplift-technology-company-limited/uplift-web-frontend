@@ -200,3 +200,8 @@
   color: white !important;
   backdrop-filter: blur(20px) !important;
 }
+
+::view-transition-old(root), ::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+}
