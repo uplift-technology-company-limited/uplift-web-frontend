@@ -3,10 +3,9 @@ import InDepthFeaturesTabs from './InDepthFeaturesTabs'; // Import the client co
 import { Section } from "@/components/ui/section"
 
 interface FeatureItem {
-  name: string;
+  title: string;
   description: string;
-  icon: string;
-  image: string;
+  icon?: string;
 }
 
 interface InDepthFeaturesSectionProps {

@@ -1,12 +1,11 @@
 import React from 'react';
-import Image from 'next/image';
 import * as LucideIcons from 'lucide-react';
 import { Section } from "@/components/ui/section"
 
 interface ProblemItem {
-  text: string;
-  icon: string;
-  image: string;
+  title: string;
+  description: string;
+  icon?: string;
 }
 
 interface ProblemStatementSectionProps {
@@ -34,8 +33,6 @@ const getIcon = (iconName: string, size = 22) => {
 };
 
 const ProblemStatementSection: React.FC<ProblemStatementSectionProps> = ({ problems, serviceColor, sectionTitle }) => {
-  const colorClass = serviceColor.split(' ')[1].replace('to-', '');
-
   return (
     <Section className="w-full py-16 bg-background">
       <div className="container mx-auto px-4">
@@ -43,33 +40,19 @@ const ProblemStatementSection: React.FC<ProblemStatementSectionProps> = ({ probl
           <h2 className="text-3xl font-bold mb-8 text-center">
             {sectionTitle}
           </h2>
-          <div className="space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {problems?.map((problem, index) => (
               <div
                 key={index}
-                className="flex flex-col md:flex-row gap-6 items-center"
+                className="bg-card border border-border rounded-xl p-6 hover:shadow-lg transition-shadow"
               >
-                <div className="w-full md:w-1/3 order-2 md:order-1">
-                  <div className="flex items-start gap-3 mb-3">
-                    <div
-                      className={`text-${colorClass} mt-1 flex-shrink-0`}
-                    >
-                      {getIcon(problem.icon)}
-                    </div>
-                    <h3 className="text-xl font-bold">{problem.text}</h3>
+                {problem.icon && (
+                  <div className={`bg-gradient-to-r ${serviceColor} text-white inline-flex p-3 rounded-lg mb-4`}>
+                    {getIcon(problem.icon)}
                   </div>
-                </div>
-                <div className="w-full md:w-2/3 order-1 md:order-2">
-                  <div className="rounded-xl overflow-hidden shadow-lg">
-                    <Image
-                      src={problem.image}
-                      alt={problem.text}
-                      width={800} // Adjust as needed
-                      height={450} // Adjust as needed
-                      className="w-full h-auto object-cover"
-                    />
-                  </div>
-                </div>
+                )}
+                <h3 className="text-xl font-bold mb-2">{problem.title}</h3>
+                <p className="text-muted-foreground">{problem.description}</p>
               </div>
             ))}
           </div>

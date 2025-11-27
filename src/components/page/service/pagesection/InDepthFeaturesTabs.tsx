@@ -1,13 +1,11 @@
 "use client";
 import React, { useState } from 'react';
-import Image from 'next/image';
 import * as LucideIcons from 'lucide-react';
 
 interface FeatureItem {
-  name: string;
+  title: string;
   description: string;
-  icon: string;
-  image: string;
+  icon?: string;
 }
 
 interface InDepthFeaturesTabsProps {
@@ -50,8 +48,8 @@ const InDepthFeaturesTabs: React.FC<InDepthFeaturesTabsProps> = ({ features, ser
               className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors ${activeTab === index ? 'border-b-2 border-' + colorClass + ' text-white' : 'text-gray-400 hover:text-gray-200'}`}
               onClick={() => setActiveTab(index)}
             >
-              {getIcon(feature.icon, 18)}
-              <span>{feature.name}</span>
+              {feature.icon && getIcon(feature.icon, 18)}
+              <span>{feature.title}</span>
             </button>
           ))}
         </div>
@@ -61,24 +59,13 @@ const InDepthFeaturesTabs: React.FC<InDepthFeaturesTabsProps> = ({ features, ser
               key={index}
               className={`${activeTab === index ? 'block' : 'hidden'}`}
             >
-              <div className="flex flex-col md:flex-row gap-8 items-center">
-                <div className="md:w-1/2">
-                  <h3 className="text-2xl font-bold mb-4">
-                    {feature.name}
-                  </h3>
-                  <p className="text-gray-300 text-lg mb-4">
-                    {feature.description}
-                  </p>
-                </div>
-                <div className="md:w-1/2 overflow-hidden">
-                  <Image
-                    src={feature.image}
-                    alt={feature.name}
-                    width={800} // Adjust as needed
-                    height={450} // Adjust as needed
-                    className="w-[800px] h-[450px] rounded-xl shadow-lg object-cover"
-                  />
-                </div>
+              <div className="bg-card rounded-xl p-8 border border-border">
+                <h3 className="text-2xl font-bold mb-4">
+                  {feature.title}
+                </h3>
+                <p className="text-muted-foreground text-lg">
+                  {feature.description}
+                </p>
               </div>
             </div>
           ))}
@@ -97,8 +84,8 @@ const InDepthFeaturesTabs: React.FC<InDepthFeaturesTabsProps> = ({ features, ser
               }
             >
               <div className="flex items-center gap-2">
-                {getIcon(feature.icon, 18)}
-                <span className="font-medium">{feature.name}</span>
+                {feature.icon && getIcon(feature.icon, 18)}
+                <span className="font-medium">{feature.title}</span>
               </div>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -117,16 +104,9 @@ const InDepthFeaturesTabs: React.FC<InDepthFeaturesTabsProps> = ({ features, ser
             </button>
             {activeAccordion === index && (
               <div className="p-4 bg-[#1A1A1A] rounded-b-lg">
-                <p className="text-gray-300 mb-4">
+                <p className="text-gray-300">
                   {feature.description}
                 </p>
-                <Image
-                  src={feature.image}
-                  alt={feature.name}
-                  width={800} // Adjust as needed
-                  height={450} // Adjust as needed
-                  className="rounded-lg w-full h-auto"
-                />
               </div>
             )}
           </div>
