@@ -25,6 +25,27 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
     return {
         title: teamsData.title,
         description: teamsData.description,
+        openGraph: {
+            title: teamsData.title,
+            description: teamsData.description,
+            url: `https://uplifttech.store/${lang}/teams`,
+            type: 'website',
+            images: [
+                {
+                    url: '/og/teams.jpg',
+                    width: 1200,
+                    height: 630,
+                    alt: lang === 'th' ? 'UPLIFT ทีมงาน' : 'UPLIFT Team',
+                },
+            ],
+        },
+        alternates: {
+            canonical: `/${lang}/teams`,
+            languages: {
+                en: '/en/teams',
+                th: '/th/teams',
+            },
+        },
     };
 }
 

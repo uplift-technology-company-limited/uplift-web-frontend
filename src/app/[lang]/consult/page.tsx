@@ -1,4 +1,5 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import { ConsultationForm } from '@/components/basic/forms/consultation-form';
 import { Section } from '@/components/ui/section';
 import { ConsultationHero } from '@/components/page/consult/consultation-hero';
@@ -8,12 +9,47 @@ import { ConsultProcess } from '@/components/page/consult/consult-process';
 import { Button } from '@/components/basic/button/button';
 import Link from 'next/link';
 
-export const metadata = {
-  title: 'Free Consultation | Uplift Tech',
-  description: 'Schedule a free consultation with our technology experts. Get personalized advice for your business needs.',
-};
+interface ConsultPageProps {
+  params: Promise<{ lang: string }>;
+}
 
-export default function ConsultPage() {
+export async function generateMetadata({ params }: ConsultPageProps): Promise<Metadata> {
+  const { lang } = await params;
+  const isThaiLang = lang === 'th';
+
+  return {
+    title: isThaiLang ? 'ปรึกษาฟรี | Uplift Tech' : 'Free Consultation | Uplift Tech',
+    description: isThaiLang
+      ? 'นัดหมายปรึกษาฟรีกับผู้เชี่ยวชาญด้านเทคโนโลยีของเรา รับคำแนะนำเฉพาะสำหรับความต้องการทางธุรกิจของคุณ'
+      : 'Schedule a free consultation with our technology experts. Get personalized advice for your business needs.',
+    openGraph: {
+      title: isThaiLang ? 'ปรึกษาฟรี | Uplift Tech' : 'Free Consultation | Uplift Tech',
+      description: isThaiLang
+        ? 'นัดหมายปรึกษาฟรีกับผู้เชี่ยวชาญด้านเทคโนโลยีของเรา'
+        : 'Schedule a free consultation with our technology experts',
+      url: `https://uplifttech.store/${lang}/consult`,
+      type: 'website',
+      images: [
+        {
+          url: '/og/consult.jpg',
+          width: 1200,
+          height: 630,
+          alt: isThaiLang ? 'UPLIFT ปรึกษาฟรี' : 'UPLIFT Free Consultation',
+        },
+      ],
+    },
+    alternates: {
+      canonical: `/${lang}/consult`,
+      languages: {
+        en: '/en/consult',
+        th: '/th/consult',
+      },
+    },
+  };
+}
+
+export default async function ConsultPage({ params }: ConsultPageProps) {
+  await params; // Ensure params are resolved
   return (
     <main className="min-h-screen bg-gradient-to-t from-slate-50 via-blue-50 to-white dark:from-black dark:via-black/90 dark:to-black/70 relative overflow-hidden">
       {/* Background Effects */}
