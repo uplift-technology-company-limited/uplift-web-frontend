@@ -49,14 +49,14 @@ export function CalltoAction() {
           <div className="relative z-10 text-center space-y-6 sm:space-y-8">
             {/* Headline */}
             <div className="space-y-3 sm:space-y-4">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white dark:text-gray-900 leading-tight px-2 sm:px-0">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white dark:text-gray-900 leading-tight px-2 sm:px-0">
                 Build Your Next{" "}
                 <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 dark:from-blue-600 dark:via-purple-600 dark:to-cyan-600 bg-clip-text text-transparent">
                   Big Thing
                 </span>
                 <br />
                 with Uplift Technology
-              </h1>
+              </h2>
               
               <p className="text-base sm:text-lg md:text-xl text-neutral-300 dark:text-gray-700 max-w-3xl mx-auto leading-relaxed px-2 sm:px-0">
                 Custom software solutions, from concept to launch. Empower your business 

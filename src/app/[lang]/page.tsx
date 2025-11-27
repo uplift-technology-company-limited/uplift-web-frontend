@@ -144,15 +144,64 @@ export function generateStaticParams() {
   return VALID_LANGS.map((lang) => ({ lang }));
 }
 
-// Generate metadata
+// Generate metadata with SEO enhancements
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
   const { lang: paramLang } = await params;
   const lang = VALID_LANGS.includes(paramLang as Lang) ? paramLang : 'en';
   const homepageData = await getHomepageData(lang);
 
+  const keywords = lang === 'th'
+    ? ['software house', 'พัฒนาซอฟต์แวร์', 'ERP', 'POS', 'WMS', 'AI', 'เว็บแอปพลิเคชัน', 'แอปมือถือ', 'Thailand', 'บริษัทซอฟต์แวร์']
+    : ['software house', 'software development', 'ERP', 'POS', 'WMS', 'AI solutions', 'web application', 'mobile app', 'Thailand', 'custom software'];
+
   return {
     title: homepageData.title,
     description: homepageData.description,
+    keywords: keywords,
+    authors: [{ name: 'UPLIFT Technology Co., Ltd.' }],
+    creator: 'UPLIFT Technology',
+    publisher: 'UPLIFT Technology Co., Ltd.',
+    openGraph: {
+      title: homepageData.title,
+      description: homepageData.description,
+      url: `https://uplifttech.store/${lang}`,
+      siteName: 'UPLIFT Technology',
+      type: 'website',
+      locale: lang === 'th' ? 'th_TH' : 'en_US',
+      images: [
+        {
+          url: '/og/home.jpg',
+          width: 1200,
+          height: 630,
+          alt: lang === 'th' ? 'UPLIFT Technology - Software House' : 'UPLIFT Technology - Software House',
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: homepageData.title,
+      description: homepageData.description,
+      images: ['/og/home.jpg'],
+      creator: '@uplifttech',
+    },
+    alternates: {
+      canonical: `/${lang}`,
+      languages: {
+        en: '/en',
+        th: '/th',
+      },
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
   };
 }
 
@@ -173,8 +222,133 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
   // Extract content sections - data is already validated in getHomepageData
   const { hero: heroContent, solution: solutionContent } = homepageData;
 
+  // JSON-LD Structured Data for SEO
+  const organizationSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'UPLIFT Technology Co., Ltd.',
+    alternateName: 'UPLIFT Technology',
+    url: 'https://uplifttech.store',
+    logo: 'https://uplifttech.store/logo.png',
+    description: lang === 'th'
+      ? 'บริษัทซอฟต์แวร์เฮาส์ชั้นนำ พัฒนาระบบ ERP, POS, WMS และโซลูชัน AI สำหรับธุรกิจในประเทศไทย'
+      : 'Leading software house developing ERP, POS, WMS systems and AI solutions for businesses in Thailand',
+    foundingDate: '2020',
+    address: {
+      '@type': 'PostalAddress',
+      addressCountry: 'TH',
+      addressLocality: 'Bangkok',
+    },
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'customer service',
+      availableLanguage: ['Thai', 'English'],
+    },
+    sameAs: [
+      'https://www.facebook.com/uplifttech',
+      'https://www.linkedin.com/company/uplifttech',
+    ],
+  };
+
+  const webPageSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: homepageData.title,
+    description: homepageData.description,
+    url: `https://uplifttech.store/${lang}`,
+    inLanguage: lang === 'th' ? 'th-TH' : 'en-US',
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'UPLIFT Technology',
+      url: 'https://uplifttech.store',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'UPLIFT Technology Co., Ltd.',
+    },
+  };
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: lang === 'th' ? 'หน้าหลัก' : 'Home',
+        item: `https://uplifttech.store/${lang}`,
+      },
+    ],
+  };
+
+  const siteNavigationSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'SiteNavigationElement',
+    name: lang === 'th' ? 'เมนูหลัก' : 'Main Navigation',
+    hasPart: [
+      {
+        '@type': 'WebPage',
+        name: lang === 'th' ? 'หน้าหลัก' : 'Home',
+        url: `https://uplifttech.store/${lang}`,
+      },
+      {
+        '@type': 'WebPage',
+        name: lang === 'th' ? 'บริการ' : 'Services',
+        url: `https://uplifttech.store/${lang}/service`,
+      },
+      {
+        '@type': 'WebPage',
+        name: lang === 'th' ? 'นวัตกรรม' : 'Innovation',
+        url: `https://uplifttech.store/${lang}/innovation`,
+      },
+      {
+        '@type': 'WebPage',
+        name: lang === 'th' ? 'โซลูชัน' : 'Solutions',
+        url: `https://uplifttech.store/${lang}/solutions`,
+      },
+      {
+        '@type': 'WebPage',
+        name: lang === 'th' ? 'เรื่องราว' : 'Story',
+        url: `https://uplifttech.store/${lang}/story`,
+      },
+      {
+        '@type': 'WebPage',
+        name: lang === 'th' ? 'วิสัยทัศน์' : 'Vision',
+        url: `https://uplifttech.store/${lang}/vision`,
+      },
+      {
+        '@type': 'WebPage',
+        name: lang === 'th' ? 'ทีมงาน' : 'Teams',
+        url: `https://uplifttech.store/${lang}/teams`,
+      },
+      {
+        '@type': 'WebPage',
+        name: lang === 'th' ? 'ติดต่อเรา' : 'Contact',
+        url: `https://uplifttech.store/${lang}/consult`,
+      },
+    ],
+  };
+
   return (
     <div className="w-full overflow-x-hidden max-w-full">
+      {/* JSON-LD Structured Data for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(siteNavigationSchema) }}
+      />
+
       <AuthSuccessHandler />
       <OAuthSuccessHandler />
       <Nav />
