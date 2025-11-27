@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useMemo, useRef, useEffect, useId } from 'react';
 import { Section } from '@/components/ui/section';
-import { AnimateEffect } from '@/components/common/animate-effect';
 import { useTechModal } from '@/lib/providers/tech-modal-provider';
 import { getTechIcon } from '@/lib/utils/icon-mapper';
-import { motion, AnimatePresence } from 'motion/react';
-import { ChevronDown } from 'lucide-react';
+import { motion, useAnimation, useInView } from 'motion/react';
+import Marquee from 'react-fast-marquee';
+import { Sparkles } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface TechItem {
   name: string;
@@ -33,205 +34,222 @@ interface TechStackProps {
   data: TechStackData;
 }
 
-const categoryLabels = {
-  frontend: 'Frontend',
-  backend: 'Backend',
-  database: 'Database & APIs',
-  infrastructure: 'Infrastructure',
-  ai: 'AI & Automation'
-};
+// Gradient backgrounds for card glow (matching startup template)
+const gradientColors = [
+  'from-orange-600 via-rose-600 to-violet-600',
+  'from-cyan-500 via-blue-500 to-indigo-500',
+  'from-green-500 via-teal-500 to-emerald-600',
+  'from-yellow-400 via-orange-500 to-yellow-600',
+  'from-purple-500 via-pink-500 to-rose-500',
+  'from-gray-600 via-gray-500 to-gray-400',
+  'from-blue-500 via-indigo-500 to-purple-500',
+  'from-rose-500 via-red-500 to-orange-500',
+];
 
-const INITIAL_DISPLAY_COUNT = 8;
+// Tech Card component matching startup template style
+const TechCard = ({
+  tech,
+  index,
+  onClick,
+}: {
+  tech: TechItem;
+  index: number;
+  onClick: () => void;
+}) => {
+  const id = useId();
+  const controls = useAnimation();
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true });
+  const bgGradient = gradientColors[index % gradientColors.length];
+
+  useEffect(() => {
+    if (inView) {
+      controls.start({
+        opacity: 1,
+        transition: { delay: Math.random() * 2, ease: 'easeOut', duration: 1 },
+      });
+    }
+  }, [controls, inView]);
+
+  return (
+    <motion.div
+      key={id}
+      ref={ref}
+      initial={{ opacity: 0 }}
+      animate={controls}
+      onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+      role="button"
+      tabIndex={0}
+      aria-label={`${tech.name} - ${tech.tagline}`}
+      className={cn(
+        'relative size-20 cursor-pointer overflow-hidden rounded-2xl border p-4 mx-1',
+        'focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2',
+        // light styles
+        'bg-white [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]',
+        // dark styles
+        'transform-gpu dark:bg-transparent dark:[border:1px_solid_rgba(255,255,255,.1)] dark:[box-shadow:0_-20px_80px_-20px_#ffffff1f_inset]'
+      )}
+    >
+      {/* Icon */}
+      <div className="relative z-10 size-full flex items-center justify-center text-foreground" aria-hidden="true">
+        {getTechIcon(tech.name)}
+      </div>
+
+      {/* Colored Glow Background - matching startup template */}
+      <div
+        className={`pointer-events-none absolute left-1/2 top-1/2 h-1/2 w-1/2 -translate-x-1/2 -translate-y-1/2 overflow-visible rounded-full bg-gradient-to-r ${bgGradient} opacity-70 blur-[20px] filter`}
+        aria-hidden="true"
+      />
+    </motion.div>
+  );
+};
 
 export const TechStack = ({ data }: TechStackProps) => {
   const { openTechModal } = useTechModal();
-  const [showAll, setShowAll] = useState(false);
 
   // Flatten all categories into single array
-  const techStackData = [
-    ...data.categories.frontend,
-    ...data.categories.backend,
-    ...data.categories.database,
-    ...data.categories.infrastructure,
-    ...data.categories.ai,
-  ];
+  const allTech = useMemo(() => {
+    const all = [
+      ...data.categories.frontend,
+      ...data.categories.backend,
+      ...data.categories.database,
+      ...data.categories.infrastructure,
+      ...data.categories.ai,
+    ];
+    return all;
+  }, [data.categories]);
 
-  // Split data into initial and remaining items
-  const displayedTech = showAll ? techStackData : techStackData.slice(0, INITIAL_DISPLAY_COUNT);
-  const hasMore = techStackData.length > INITIAL_DISPLAY_COUNT;
+  // Split into rows with different starting points for variety
+  const getRowTech = (startIndex: number) => {
+    const result = [];
+    for (let i = 0; i < allTech.length; i++) {
+      result.push(allTech[(startIndex + i) % allTech.length]);
+    }
+    return result;
+  };
+
+  const row1 = getRowTech(0);
+  const row2 = getRowTech(10);
+  const row3 = getRowTech(20);
 
   return (
-    <Section className="bg-gradient-to-b from-muted/30 to-background py-20 md:py-32 relative overflow-hidden">
-
-      {/* Background Gradient Orbs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          className="absolute top-20 left-10 w-96 h-96 bg-primary/10 rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{ duration: 8, repeat: Infinity }}
-        />
-        <motion.div
-          className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"
-          animate={{
-            scale: [1.2, 1, 1.2],
-            opacity: [0.5, 0.3, 0.5],
-          }}
-          transition={{ duration: 10, repeat: Infinity }}
-        />
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10">
-
-        {/* Header */}
-        <AnimateEffect index={0}>
-          <div className="text-center mb-16">
-            <motion.div
-              className="inline-flex items-center bg-primary/10 backdrop-blur-sm px-4 py-2 rounded-full border border-primary/20 mb-6"
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+    <Section className="py-20 md:py-28 relative overflow-hidden" id="tech-stack" aria-labelledby="tech-stack-title">
+      <div className="relative min-h-[450px] md:min-h-[550px]">
+        {/* Marquee Area - top section */}
+        <div className="absolute inset-x-0 top-0 h-[280px] md:h-[320px]">
+          {/* Marquee rows */}
+          <div className="relative h-full">
+            <Marquee
+              gradient={false}
+              speed={30}
+              pauseOnHover
+              direction="left"
+              className="py-2"
             >
-              <span className="text-sm font-semibold text-primary">{data.badge}</span>
-            </motion.div>
+              {row1.map((tech, idx) => (
+                <TechCard
+                  key={`row1-${tech.name}-${idx}`}
+                  tech={tech}
+                  index={idx}
+                  onClick={() =>
+                    openTechModal({
+                      ...tech,
+                      icon: getTechIcon(tech.name),
+                    })
+                  }
+                />
+              ))}
+            </Marquee>
 
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
-              <span className="bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
-                {data.title}
-              </span>
-            </h2>
+            <Marquee
+              gradient={false}
+              speed={25}
+              pauseOnHover
+              direction="right"
+              className="py-2"
+            >
+              {row2.map((tech, idx) => (
+                <TechCard
+                  key={`row2-${tech.name}-${idx}`}
+                  tech={tech}
+                  index={idx + 10}
+                  onClick={() =>
+                    openTechModal({
+                      ...tech,
+                      icon: getTechIcon(tech.name),
+                    })
+                  }
+                />
+              ))}
+            </Marquee>
 
-            <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-              {data.subtitle}
-            </p>
+            <Marquee
+              gradient={false}
+              speed={35}
+              pauseOnHover
+              direction="left"
+              className="py-2"
+            >
+              {row3.map((tech, idx) => (
+                <TechCard
+                  key={`row3-${tech.name}-${idx}`}
+                  tech={tech}
+                  index={idx + 20}
+                  onClick={() =>
+                    openTechModal({
+                      ...tech,
+                      icon: getTechIcon(tech.name),
+                    })
+                  }
+                />
+              ))}
+            </Marquee>
           </div>
-        </AnimateEffect>
 
-        {/* Animated Icon Wall - Masonry/Bento Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6 mb-12">
-          <AnimatePresence mode="popLayout">
-            {displayedTech.map((tech, index) => (
-              <AnimateEffect key={tech.name} index={index + 1}>
-                <motion.div
-                  layout
-                  className={`relative group cursor-pointer ${
-                    // Create masonry effect with different heights
-                    index % 7 === 0 || index % 11 === 0 ? 'md:row-span-2' : ''
-                  }`}
-                  onClick={() => openTechModal({
-                    ...tech,
-                    icon: getTechIcon(tech.name)
-                  })}
-                  whileHover={{ scale: 1.05, zIndex: 10 }}
-                  whileTap={{ scale: 0.95 }}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ delay: index * 0.05 }}
-                >
-                  {/* Card with Glow Effect */}
-                  <div className="relative h-full min-h-[140px] bg-card/50 backdrop-blur-sm border border-border rounded-2xl p-6 overflow-hidden transition-all duration-300 hover:border-primary/50 hover:bg-card group-hover:shadow-2xl">
+          {/* Gradient overlays - outside marquee wrapper */}
+          {/* Y: top visible → bottom hidden */}
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background pointer-events-none" />
 
-                    {/* Animated Gradient Border on Hover */}
-                    <motion.div
-                      className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                      style={{
-                        background: `linear-gradient(135deg, ${tech.color.replace('from-', '').replace('to-', ', ')})`,
-                        padding: '2px',
-                        WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                        WebkitMaskComposite: 'xor',
-                        maskComposite: 'exclude',
-                      }}
-                    />
+          {/* X: left edge hidden */}
+          <div className="absolute inset-y-0 left-0 w-24 md:w-40 bg-gradient-to-r from-background to-transparent pointer-events-none" />
 
-                    {/* Pulse Animation */}
-                    <motion.div
-                      className={`absolute inset-0 bg-gradient-to-br ${tech.color} opacity-0`}
-                      animate={{
-                        opacity: [0, 0.1, 0],
-                        scale: [0.8, 1.2, 0.8],
-                      }}
-                      transition={{
-                        duration: 3,
-                        repeat: Infinity,
-                        delay: index * 0.2,
-                      }}
-                    />
-
-                    {/* Content */}
-                    <div className="relative z-10 flex flex-col items-center justify-center h-full text-center space-y-3">
-                      {/* Icon with Glow */}
-                      <motion.div
-                        className={`w-14 h-14 flex items-center justify-center rounded-xl bg-gradient-to-br ${tech.color} text-white shadow-lg`}
-                        style={{
-                          boxShadow: `0 0 20px ${tech.color.includes('blue') ? 'rgba(59, 130, 246, 0.4)' :
-                                               tech.color.includes('purple') ? 'rgba(168, 85, 247, 0.4)' :
-                                               tech.color.includes('green') ? 'rgba(34, 197, 94, 0.4)' :
-                                               tech.color.includes('orange') ? 'rgba(249, 115, 22, 0.4)' :
-                                               'rgba(139, 92, 246, 0.4)'}`,
-                        }}
-                        animate={{
-                          rotate: [0, 5, -5, 0],
-                        }}
-                        transition={{
-                          duration: 4,
-                          repeat: Infinity,
-                          delay: index * 0.3,
-                        }}
-                      >
-                        {getTechIcon(tech.name)}
-                      </motion.div>
-
-                      {/* Name */}
-                      <div>
-                        <h4 className="text-base font-bold text-foreground mb-1">
-                          {tech.name}
-                        </h4>
-                        <p className="text-xs text-muted-foreground line-clamp-2">
-                          {tech.tagline}
-                        </p>
-                      </div>
-
-                      {/* Category Badge */}
-                      <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                        {categoryLabels[tech.category]}
-                      </span>
-                    </div>
-
-                    {/* Corner Accent */}
-                    <div className={`absolute top-2 right-2 w-2 h-2 rounded-full bg-gradient-to-br ${tech.color} opacity-60`} />
-                  </div>
-                </motion.div>
-              </AnimateEffect>
-            ))}
-          </AnimatePresence>
+          {/* X: right edge hidden */}
+          <div className="absolute inset-y-0 right-0 w-24 md:w-40 bg-gradient-to-l from-background to-transparent pointer-events-none" />
         </div>
 
-        {/* Look More Button */}
-        {hasMore && (
-          <AnimateEffect index={displayedTech.length + 1}>
-            <div className="flex justify-center">
-              <motion.button
-                onClick={() => setShowAll(!showAll)}
-                className="group relative inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-primary/10 to-purple-500/10 hover:from-primary/20 hover:to-purple-500/20 border border-primary/20 rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-primary/20"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <span className="text-base font-semibold bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">
-                  {showAll ? 'Show Less' : 'Look More'}
-                </span>
-                <motion.div
-                  animate={{ rotate: showAll ? 180 : 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <ChevronDown className="w-5 h-5 text-primary" />
-                </motion.div>
-              </motion.button>
+        {/* Central Content */}
+        <div className="absolute inset-0 flex items-center justify-center z-10">
+          <div className="text-center relative">
+            {/* Central Icon Box */}
+            <div className="mx-auto size-24 rounded-[2rem] border bg-background/90 p-3 shadow-2xl backdrop-blur-md lg:size-32" aria-hidden="true">
+              <Sparkles className="mx-auto size-16 text-primary lg:size-24" />
             </div>
-          </AnimateEffect>
-        )}
 
+            {/* Title & Subtitle */}
+            <div className="mt-4 flex flex-col items-center text-center">
+              <span className="inline-flex items-center bg-primary/10 backdrop-blur-sm px-4 py-2 rounded-full border border-primary/20 mb-3">
+                <span className="text-sm font-semibold text-primary">
+                  {data.badge}
+                </span>
+              </span>
+              <h2 id="tech-stack-title" className="text-3xl font-bold lg:text-4xl text-primary">
+                {data.title}
+              </h2>
+              <p className="mt-2 text-muted-foreground max-w-md px-4">
+                {data.subtitle}
+              </p>
+            </div>
+
+            {/* Background blur */}
+            <div className="absolute inset-0 -z-10 bg-background/70 blur-3xl scale-150 rounded-full" />
+          </div>
+        </div>
       </div>
     </Section>
   );
