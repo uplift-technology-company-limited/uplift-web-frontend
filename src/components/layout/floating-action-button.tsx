@@ -1,19 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { MoreHorizontal, MessageCircle, Globe, X, Moon, Sun } from 'lucide-react';
+import { useState } from 'react';
+import { MoreHorizontal, MessageCircle, Globe, X } from 'lucide-react';
 import { useLanguageSwitcher } from '@/components/common/language-switcher';
-import { useTheme } from 'next-themes';
+import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler';
 
 export default function FloatingActionButton() {
   const [isOpen, setIsOpen] = useState(false);
   const { currentLocale, switchLanguage } = useLanguageSwitcher();
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
@@ -33,14 +27,6 @@ export default function FloatingActionButton() {
       onClick: () => {
         const newLocale = currentLocale === 'th' ? 'en' : 'th';
         switchLanguage(newLocale);
-      },
-    },
-    {
-      icon: mounted && theme === 'dark' ? Sun : Moon,
-      label: mounted && theme === 'dark' ? 'Light' : 'Dark',
-      color: '#F59E0B',
-      onClick: () => {
-        setTheme(theme === 'dark' ? 'light' : 'dark');
       },
     },
   ];
@@ -79,6 +65,25 @@ export default function FloatingActionButton() {
             </div>
           </button>
         ))}
+
+        {/* Theme Toggle with AnimatedThemeToggler */}
+        <div
+          className="group flex items-center gap-3 transition-all duration-300 hover:scale-105"
+          style={{
+            transitionDelay: isOpen ? `${menuItems.length * 50}ms` : '0ms',
+          }}
+        >
+          {/* Label */}
+          <span className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg text-sm font-medium text-gray-800 dark:text-gray-200 whitespace-nowrap border border-gray-200 dark:border-gray-700 group-hover:shadow-xl transition-shadow">
+            Theme
+          </span>
+
+          {/* AnimatedThemeToggler Button */}
+          <AnimatedThemeToggler
+            className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:rotate-12 flex-shrink-0 bg-gradient-to-br from-amber-500 to-orange-500 text-white"
+            onAfterToggle={() => setIsOpen(false)}
+          />
+        </div>
       </div>
 
       {/* Main FAB Button */}

@@ -3,9 +3,9 @@ import * as LucideIcons from 'lucide-react';
 import { Section } from "@/components/ui/section"
 
 interface HighlightItem {
-  headline: string;
+  title: string;
   description: string;
-  icon: string;
+  icon?: string;
 }
 
 interface QuickPitchSectionProps {
@@ -59,10 +59,10 @@ const QuickPitchSection: React.FC<QuickPitchSectionProps> = ({ highlights, servi
                 <div
                   className={`bg-gradient-to-r ${serviceColor} text-white inline-flex p-3 rounded-lg mb-4`}
                 >
-                  {getIcon(highlight.icon)}
+                  {highlight.icon && getIcon(highlight.icon)}
                 </div>
                 <h3 className="text-xl font-bold mb-2">
-                  {highlight.headline}
+                  {highlight.title}
                 </h3>
                 <p className="text-gray-300">{highlight.description}</p>
               </div>

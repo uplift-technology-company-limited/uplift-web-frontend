@@ -1,4 +1,5 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import Nav from "@/components/basic/nav/resnav";
 import Footer from "@/components/layout/footer/footer";
 import { ServiceShowcaseSection } from "@/components/page/service/service";
@@ -16,6 +17,42 @@ const getServicesData = async (locale: string) => {
     return servicesData.default;
   }
 };
+
+// Generate metadata for SEO
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang } = await params;
+  const isThaiLang = lang === 'th';
+
+  return {
+    title: isThaiLang ? 'บริการของเรา | UPLIFT' : 'Our Services | UPLIFT',
+    description: isThaiLang
+      ? 'บริการพัฒนาซอฟต์แวร์ครบวงจร ระบบ ERP, POS และเว็บแอปพลิเคชันที่ตอบโจทย์ธุรกิจของคุณ'
+      : 'Comprehensive software development services including ERP systems, POS solutions, and custom web applications tailored to your business needs.',
+    openGraph: {
+      title: isThaiLang ? 'บริการของเรา | UPLIFT' : 'Our Services | UPLIFT',
+      description: isThaiLang
+        ? 'บริการพัฒนาซอฟต์แวร์ครบวงจร ระบบ ERP, POS และเว็บแอปพลิเคชัน'
+        : 'Comprehensive software development services including ERP, POS, and web applications',
+      url: `https://uplifttech.store/${lang}/service`,
+      type: 'website',
+      images: [
+        {
+          url: '/og/services.jpg',
+          width: 1200,
+          height: 630,
+          alt: isThaiLang ? 'UPLIFT Services' : 'UPLIFT Services',
+        },
+      ],
+    },
+    alternates: {
+      canonical: `/${lang}/service`,
+      languages: {
+        en: '/en/service',
+        th: '/th/service',
+      },
+    },
+  };
+}
 
 
 export default async function ServicePage({ params }: { params: Promise<{ lang: string }> }) {

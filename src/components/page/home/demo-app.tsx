@@ -31,12 +31,12 @@ export const DemoApp = () => {
                   </motion.div>
                   <span className="text-sm font-semibold text-cyan-700 dark:text-cyan-300">Mobile Development</span>
                 </motion.div>
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
+                <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
                   <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
                     Mobile Apps
                   </span>
                   <br />That Scale
-                </h1>
+                </h2>
                 <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-lg">
                   สร้างแอปพลิเคชันมือถือที่ทันสมัย รองรับทั้ง iOS และ Android 
                   ด้วยเทคโนโลยีล่าสุดและการออกแบบที่เน้นผู้ใช้เป็นหลัก

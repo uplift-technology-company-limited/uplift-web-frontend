@@ -17,20 +17,37 @@ import storyDataEn from '@/data/story/en.json';
 // Generate metadata for SEO
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
     const { lang } = await params;
-    const seoConfig = await getPageSEO('story');
+    const isThaiLang = lang === 'th';
 
-    if (seoConfig) {
-        const seoData = lang === 'th' ? seoConfig.th : seoConfig.en;
-        const pagePath = lang === 'en' ? '/en/story' : '/th/story';
-        return generatePageMetadata(seoData, lang, 'https://uplifttech.store', pagePath);
-    }
+    const title = isThaiLang ? 'เรื่องราวของเรา | UPLIFT TECHNOLOGY' : 'Our Story | UPLIFT TECHNOLOGY';
+    const description = isThaiLang
+        ? 'ค้นพบการเดินทางของ UPLIFT Technology - จากจุดเริ่มต้นสู่การเป็น Software House ที่ช่วยยกระดับธุรกิจด้วยเทคโนโลยี'
+        : 'Discover the journey of UPLIFT Technology - from inception to becoming a Software House that elevates businesses with technology';
 
-    // Fallback metadata
     return {
-        title: lang === 'th' ? 'เรื่องราวของเรา | UPLIFT TECHNOLOGY' : 'Our Story | UPLIFT TECHNOLOGY',
-        description: lang === 'th'
-            ? 'ค้นพบการเดินทางของ UPLIFT Technology Co., Ltd.'
-            : 'Discover the journey of UPLIFT Technology Co., Ltd.'
+        title,
+        description,
+        openGraph: {
+            title,
+            description,
+            url: `https://uplifttech.store/${lang}/story`,
+            type: 'website',
+            images: [
+                {
+                    url: '/og/story.jpg',
+                    width: 1200,
+                    height: 630,
+                    alt: isThaiLang ? 'UPLIFT เรื่องราวของเรา' : 'UPLIFT Our Story',
+                },
+            ],
+        },
+        alternates: {
+            canonical: `/${lang}/story`,
+            languages: {
+                en: '/en/story',
+                th: '/th/story',
+            },
+        },
     };
 }
 

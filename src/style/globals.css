@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -199,4 +200,9 @@
   border: 1px solid rgba(255, 255, 255, 0.2) !important;
   color: white !important;
   backdrop-filter: blur(20px) !important;
+}
+
+::view-transition-old(root), ::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
 }

@@ -33,12 +33,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Development Commands
 
-- **Development server**: `npm run dev` (uses Turbopack for faster builds on port 4000)
+- **Development server**: `npm run dev` (uses Turbopack for faster builds on port 4040)
 - **Production build**: `npm run build`
 - **Post-build**: `npm run postbuild` (generates sitemap using next-sitemap)
-- **Start production server**: `npm start`
+- **Start production server**: `npm start` (standalone mode) or `npm run start:next` (Next.js mode)
 - **Linting**: `npm run lint`
-- **Type checking**: `npx tsc --noEmit` (no dedicated typecheck script in package.json)
+- **Type checking**: `npx tsc --noEmit` or `npm run typecheck`
+- **Pre-push check**: `npm run pre-push` (runs all checks in order)
 - **Testing**: Uses Vitest with jsdom environment
   - Test configuration in `vitest.config.ts`
   - Run tests: `npm test` (if configured) or `npx vitest`
@@ -48,14 +49,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is a Next.js 15 application for Uplift consulting services with sophisticated content management, user authentication, and file handling capabilities.
 
 ### Core Technologies
-- **Framework**: Next.js 15.3.5 with App Router and Turbopack
+- **Framework**: Next.js 15.5.6 with App Router and Turbopack
 - **Frontend**: React 19 with TypeScript 5
-- **Styling**: Tailwind CSS 4 with shadcn/ui components
+- **Styling**: Tailwind CSS 4 with shadcn/ui and Magic UI components
+- **Typography**: @tailwindcss/typography plugin (required for blog posts)
 - **State Management**: Zustand 5 stores with persistence for client-side state
 - **3D Graphics**: Three.js with React Three Fiber (@react-three/fiber, @react-three/drei)
 - **Drag & Drop**: @dnd-kit for sortable interfaces
 - **Animations**: Motion (formerly Framer Motion), Lottie animations
 - **Icons**: Heroicons, Tabler Icons, React Icons, Lucide React
+- **Content**: MDX for blog posts with rehype plugins (syntax highlighting, auto-linking)
 - **Authentication**: Custom JWT-based system with httpOnly cookies and social OAuth (Google, Facebook)
 - **External Integrations**: Google Analytics, LINE LIFF
 
@@ -72,9 +75,12 @@ Custom JWT-based authentication system:
 ### Directory Structure & Routing
 Next.js 15 App Router with route groups:
 - `src/app/[lang]/`: Dynamic route for language-specific pages (en/th) - uses static JSON data, not next-intl
+  - `src/app/[lang]/solutions/`: Blog system with listing and individual post pages
+  - `src/app/[lang]/solutions/[slug]/`: Dynamic blog post pages with MDX rendering
 - `src/app/admin/`: Role-protected admin dashboard with full CRUD management
 - `src/app/auth/`: Authentication pages (signin, signup)
 - `src/app/api/`: API endpoints (currently pointing to external NestJS backend)
+- `src/content/blog/`: MDX blog post files with frontmatter
 
 ### State Management Architecture
 Zustand stores for different domains:
@@ -145,7 +151,7 @@ AWS_S3_REGION=ap-southeast-1
 ### Development Setup
 1. **Install dependencies**: `npm install`
 2. **Configure environment**: Set up `.env` file with backend API URL
-3. **Start development**: `npm run dev` (runs on port 4000 with Turbopack)
+3. **Start development**: `npm run dev` (runs on port 4040 with Turbopack)
 4. **Backend dependency**: Requires separate NestJS backend running on configured API URL
 
 ### Key Architecture Patterns
@@ -247,7 +253,88 @@ async function getPortfolioData(locale: string): Promise<PortfolioData>
 - Components receive data via props (not hardcoded)
 - Each section is independently loadable and cacheable
 
+### Blog System Architecture
+
+**Location**: `/[lang]/solutions` - MDX-based blog system with static generation
+
+**Content Files**: `src/content/blog/*.mdx`
+- Each MDX file has YAML frontmatter with metadata (title, description, date, tags, author, etc.)
+- Markdown content with support for code blocks, tables, images, and custom components
+
+**Blog Library**: `src/lib/blog.ts`
+- `getAllBlogSlugs()` - Get all blog post slugs for static generation
+- `getBlogPost(slug)` - Get single post with frontmatter and content
+- `getAllBlogPosts()` - Get all posts sorted by date (newest first)
+- `getFeaturedBlogPosts()` - Get featured posts only
+- `getBlogPostsByTag(tag)` - Filter posts by tag
+- `getRelatedBlogPosts(slug, limit)` - Get related posts based on shared tags
+- `formatDate()` / `formatDateThai()` - Format dates for EN/TH
+
+**MDX Configuration** (in `[slug]/page.tsx`):
+```typescript
+import { MDXRemote } from 'next-mdx-remote/rsc'
+import remarkGfm from 'remark-gfm'
+import rehypePrettyCode from 'rehype-pretty-code'
+import rehypeSlug from 'rehype-slug'
+import rehypeAutolinkHeadings from 'rehype-autolink-headings'
+
+// MDX rendering with plugins
+<MDXRemote
+  source={post.content}
+  options={{
+    mdxOptions: {
+      remarkPlugins: [remarkGfm],
+      rehypePlugins: [
+        rehypeSlug,  // Auto-generate heading IDs
+        [rehypeAutolinkHeadings, { behavior: 'wrap' }],  // Make headings linkable
+        [rehypePrettyCode, { theme: 'github-dark', keepBackground: false }]  // Syntax highlighting
+      ]
+    }
+  }}
+/>
+```
+
+**Typography System**:
+- **CRITICAL**: Requires `@tailwindcss/typography` plugin installed
+- Add to `globals.css`: `@plugin "@tailwindcss/typography";`
+- Use `prose` classes with extensive customization for blog content:
+  ```tsx
+  <div className="prose prose-lg dark:prose-invert max-w-none
+    prose-headings:font-bold prose-headings:tracking-tight
+    prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl
+    prose-p:leading-relaxed prose-a:text-primary prose-a:no-underline">
+  ```
+
+**Blog Components**: `src/components/blog/`
+- `blog-card.tsx` - Post preview card with thumbnail, tags, date, read time
+- `blog-hero.tsx` - Hero section for blog listing page
+- `blog-grid.tsx` - Responsive grid for blog posts
+- `search-bar.tsx` - Search posts by title/description
+- `tag-filter.tsx` - Filter posts by tags
+- `table-of-contents.tsx` - Auto-generated TOC from H2/H3 headings (reads from DOM, not markdown)
+
+**Critical Implementation Notes**:
+- Table of Contents extracts headings from rendered DOM (not markdown) to match `rehypeSlug` generated IDs
+- All blog pages use `generateStaticParams()` for both `/en/solutions` and `/th/solutions` routes
+- Typography plugin is REQUIRED - without it, all prose classes have no effect
+- Custom heading components with `scroll-mt-20` for proper anchor scrolling
+
+**Blog Post Frontmatter Example**:
+```yaml
+---
+title: "Blog Post Title"
+description: "Post description for SEO and preview"
+date: "2024-06-20"
+tags: ["Automation", "Case Study", "Manufacturing"]
+featured: true
+author: "Uplift Team"
+thumbnail: "https://images.unsplash.com/..."
+---
+```
+
 ### Common Pitfalls & Solutions
+- **styled-jsx**: NEVER use styled-jsx in Next.js 15 - it breaks SSR. Use external CSS files or Tailwind only
+- **Typography Plugin**: Blog posts require `@tailwindcss/typography` plugin. Without it, prose classes have no effect
 - **Dynamic Tailwind Classes**: Avoid template literals in className (e.g., `text-${color}-400`). Use complete class names or cn() utility
 - **Optional Chaining**: Always use optional chaining for potentially undefined properties (e.g., `item.gradientFrom?.split()`)
 - **Type Conflicts**: Watch for duplicate type definitions between local interfaces and external types
@@ -259,3 +346,5 @@ async function getPortfolioData(locale: string): Promise<PortfolioData>
 - **TypeScript Path Aliases**: Use `@/*` to import from `src/*` directory
 - **Next.js Output**: Configured for standalone deployment mode
 - **Sitemap Generation**: Automatic generation via next-sitemap post-build for both /en and /th routes
+- **MDX Table of Contents**: Must extract headings from DOM (not markdown) to match rehypeSlug-generated IDs
+- **Magic UI Components**: Some components like SmoothCursor need to be client components with proper positioning

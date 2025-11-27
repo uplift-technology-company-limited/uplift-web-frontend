@@ -41,6 +41,27 @@ export async function generateMetadata({ params }: TeamMemberPageProps) {
     return {
         title: `${member.name} - ${member.position} | UPLIFT`,
         description: member.bio,
+        openGraph: {
+            title: `${member.name} - ${member.position}`,
+            description: member.bio,
+            url: `https://uplifttech.store/${lang}/teams/${resolvedParams.slug}`,
+            type: 'profile',
+            images: [
+                {
+                    url: '/og/team-member.jpg',
+                    width: 1200,
+                    height: 630,
+                    alt: member.name,
+                },
+            ],
+        },
+        alternates: {
+            canonical: `/${lang}/teams/${resolvedParams.slug}`,
+            languages: {
+                en: `/en/teams/${resolvedParams.slug}`,
+                th: `/th/teams/${resolvedParams.slug}`,
+            },
+        },
     };
 }
 

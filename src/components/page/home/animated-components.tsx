@@ -3,6 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { AnimateEffect } from "@/components/common/animate-effect";
+import { BorderBeam } from "@/components/ui/border-beam";
 
 interface AnimatedTitleProps {
   title: string;
@@ -94,6 +95,20 @@ export const AnimatedProblemCard: React.FC<AnimatedProblemCardProps> = ({ proble
 
         {/* Hover effect background */}
         <div className={`absolute inset-0 bg-gradient-to-br ${problem.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500 rounded-2xl`}></div>
+
+        {/* Border Beam Effects */}
+        <BorderBeam
+          duration={6}
+          size={400}
+          className="from-transparent via-orange-500 to-transparent"
+        />
+        <BorderBeam
+          duration={6}
+          delay={3}
+          size={400}
+          borderWidth={2}
+          className="from-transparent via-amber-500 to-transparent"
+        />
       </div>
     </motion.div>
   </AnimateEffect>

@@ -1,8 +1,9 @@
 import React from 'react';
 
 interface BenefitItem {
-  metric: string;
+  title: string;
   description: string;
+  icon?: string;
 }
 
 interface BenefitsOutcomesSectionProps {
@@ -31,11 +32,11 @@ const BenefitsOutcomesSection: React.FC<BenefitsOutcomesSectionProps> = ({ benef
                   className={`bg-gradient-to-br ${cardColorClass} rounded-xl p-6 text-center border border-${colorClass}/20`}
                 >
                   <h3
-                    className={`text-4xl font-bold mb-3 text-${colorClass}`}
+                    className={`text-2xl font-bold mb-3 text-${colorClass}`}
                   >
-                    {benefit.metric}
+                    {benefit.title}
                   </h3>
-                  <p className="text-white">{benefit.description}</p>
+                  <p className="text-muted-foreground">{benefit.description}</p>
                 </div>
               );
             })}
