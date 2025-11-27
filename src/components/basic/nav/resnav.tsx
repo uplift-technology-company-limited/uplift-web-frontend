@@ -30,6 +30,7 @@ export default function DesktopNav() {
     const pathname = usePathname();
     const currentLang = pathname.split('/')[1] || 'en';
 
+    // Desktop nav items (with dropdown subItems for Story)
     const navItems = [
         {
             name: "Story",
@@ -52,6 +53,18 @@ export default function DesktopNav() {
             name: "Innovation",
             link: `/${currentLang}/innovation`,
         },
+    ];
+
+    // Mobile nav items (flat list - all main pages)
+    const mobileNavItems = [
+        { name: "Story", link: `/${currentLang}/story` },
+        { name: "Service", link: `/${currentLang}/service` },
+        { name: "Solution", link: `/${currentLang}/solutions` },
+        { name: "Innovation", link: `/${currentLang}/innovation` },
+        { name: "Team", link: `/${currentLang}/teams` },
+        { name: "Company", link: `/${currentLang}/company` },
+        { name: "Vision", link: `/${currentLang}/vision` },
+        { name: "Consult", link: `/${currentLang}/consult` },
     ];
 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -120,7 +133,7 @@ export default function DesktopNav() {
                             <SheetContent side="right" className="w-[300px] sm:w-[400px]">
                                 <NavSheet
                                     user={user}
-                                    navItems={navItems}
+                                    navItems={mobileNavItems}
                                     isMobile={true}
                                     onClose={() => setIsMobileMenuOpen(false)}
                                 />

@@ -106,6 +106,28 @@ export interface SectionVariants {
 
 export interface InnovationPageData {
   slug: string
+  /**
+   * highlight: true = แสดงใน Solution section บน Home page
+   * highlight: false = แสดงเฉพาะในหน้า /innovation
+   */
+  highlight?: boolean
+  /**
+   * icon: ชื่อ icon สำหรับแสดงใน Solution section (จำเป็นถ้า highlight: true)
+   * รองรับ: FaShippingFast, FaDumbbell, FaWarehouse, FaCashRegister, etc.
+   */
+  icon?: string
+  /**
+   * bgColor: Tailwind gradient class สำหรับ background ใน Solution section
+   * ตัวอย่าง: 'bg-gradient-to-br from-blue-500/20 to-cyan-500/20'
+   */
+  bgColor?: string
+  /**
+   * gridSpan: ขนาด card ใน BentoGrid (จำเป็นถ้า highlight: true)
+   * - '2x1' = กว้าง 2 columns (md:col-span-2)
+   * - '1x1' = ปกติ 1 column
+   * - '1x2' = สูง 2 rows (md:row-span-2)
+   */
+  gridSpan?: '2x1' | '1x1' | '1x2'
   hero: InnovationHero
   problems?: InnovationProblem[]
   solutions?: InnovationSolution[]

@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/basic/button/button";
-import { LogOutIcon, UserIcon, SettingsIcon, ShieldIcon, BookOpenIcon, BriefcaseIcon, LightbulbIcon, PuzzleIcon } from "lucide-react";
+import { LogOutIcon, UserIcon, SettingsIcon, ShieldIcon, BookOpenIcon, BriefcaseIcon, LightbulbIcon, PuzzleIcon, UsersIcon, BuildingIcon, EyeIcon, MessageCircleIcon } from "lucide-react";
 import { useAuthActions } from "@/lib/store/auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
@@ -48,6 +48,22 @@ export function NavSheet({ user, onClose, navItems, isMobile = false }: NavSheet
       name: "Innovation",
       link: `/${currentLang}/innovation`,
     },
+    {
+      name: "Team",
+      link: `/${currentLang}/teams`,
+    },
+    {
+      name: "Company",
+      link: `/${currentLang}/company`,
+    },
+    {
+      name: "Vision",
+      link: `/${currentLang}/vision`,
+    },
+    {
+      name: "Consult",
+      link: `/${currentLang}/consult`,
+    },
   ];
 
   // Use provided navItems or fallback to default
@@ -87,6 +103,10 @@ export function NavSheet({ user, onClose, navItems, isMobile = false }: NavSheet
                 case 'service': return <BriefcaseIcon className="h-4 w-4" />;
                 case 'solution': return <PuzzleIcon className="h-4 w-4" />;
                 case 'innovation': return <LightbulbIcon className="h-4 w-4" />;
+                case 'team': return <UsersIcon className="h-4 w-4" />;
+                case 'company': return <BuildingIcon className="h-4 w-4" />;
+                case 'vision': return <EyeIcon className="h-4 w-4" />;
+                case 'consult': return <MessageCircleIcon className="h-4 w-4" />;
                 default: return null;
               }
             };

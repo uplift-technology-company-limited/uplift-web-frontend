@@ -1,15 +1,27 @@
 'use client';
 
 import { OptimizedImage } from "@/components/common/optimized-image";
-import { FaLightbulb, FaCode, FaUsers, FaCog, FaChartLine } from 'react-icons/fa';
+import { FaLightbulb, FaCode, FaUsers, FaCog, FaChartLine, FaGraduationCap, FaBriefcase, FaRocket, FaGlobe, FaBuilding, FaUserMd, FaBrain, FaDatabase, FaMicrochip, FaServer, FaCloud, FaNetworkWired, FaRobot, FaChartBar, FaHandshake } from 'react-icons/fa';
 import { motion } from 'motion/react';
+
+interface Education {
+  degree: string;
+  icon: string;
+}
+
+interface Highlight {
+  icon: string;
+  text: string;
+}
 
 interface Founder {
   id: number;
   name: string;
   title: string;
   role: string;
-  description: string;
+  description?: string;
+  education?: Education[];
+  highlights?: Highlight[];
   expertise: string[];
   vision: string;
   image: string;
@@ -17,9 +29,10 @@ interface Founder {
 
 interface AboutSectionProps {
   founders: Founder[];
+  lang?: string;
 }
 
-function AboutSection({ founders }: AboutSectionProps) {
+function AboutSection({ founders, lang = 'en' }: AboutSectionProps) {
     const getExpertiseIcon = (expertise: string) => {
         switch (expertise.toLowerCase()) {
             case 'system architecture': return <FaCog className="w-4 h-4" />;
@@ -30,11 +43,41 @@ function AboutSection({ founders }: AboutSectionProps) {
         }
     };
 
+    const getEducationIcon = (iconName: string) => {
+        switch (iconName) {
+            case 'medical': return <FaUserMd className="w-4 h-4" />;
+            case 'business': return <FaBriefcase className="w-4 h-4" />;
+            case 'code': return <FaCode className="w-4 h-4" />;
+            case 'data': return <FaDatabase className="w-4 h-4" />;
+            case 'ai': return <FaBrain className="w-4 h-4" />;
+            case 'cloud': return <FaCloud className="w-4 h-4" />;
+            case 'hardware': return <FaMicrochip className="w-4 h-4" />;
+            case 'network': return <FaNetworkWired className="w-4 h-4" />;
+            case 'server': return <FaServer className="w-4 h-4" />;
+            default: return <FaGraduationCap className="w-4 h-4" />;
+        }
+    };
+
+    const getHighlightIcon = (iconName: string) => {
+        switch (iconName) {
+            case 'globe': return <FaGlobe className="w-4 h-4" />;
+            case 'building': return <FaBuilding className="w-4 h-4" />;
+            case 'rocket': return <FaRocket className="w-4 h-4" />;
+            case 'robot': return <FaRobot className="w-4 h-4" />;
+            case 'chart': return <FaChartBar className="w-4 h-4" />;
+            case 'handshake': return <FaHandshake className="w-4 h-4" />;
+            case 'brain': return <FaBrain className="w-4 h-4" />;
+            case 'code': return <FaCode className="w-4 h-4" />;
+            case 'server': return <FaServer className="w-4 h-4" />;
+            default: return <FaRocket className="w-4 h-4" />;
+        }
+    };
+
     return (
         <section className="py-20 bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
             <div className="max-w-7xl mx-auto px-4">
                 {/* Section Header */}
-                <motion.div 
+                <motion.div
                     className="text-center mb-16"
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -43,11 +86,14 @@ function AboutSection({ founders }: AboutSectionProps) {
                 >
                     <h2 className="text-4xl md:text-5xl font-bold mb-4">
                         <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                            Meet Our Team
+                            {lang === 'th' ? 'ผู้ก่อตั้ง' : 'Founders'}
                         </span>
                     </h2>
                     <p className="text-lg text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
-                        The visionaries behind UPLIFT Technology's innovative solutions
+                        {lang === 'th'
+                            ? 'ผู้นำที่อยู่เบื้องหลังวิสัยทัศน์ของ UPLIFT Technology'
+                            : "The leaders behind UPLIFT Technology's vision"
+                        }
                     </p>
                 </motion.div>
 
@@ -110,41 +156,67 @@ function AboutSection({ founders }: AboutSectionProps) {
                                     </p>
                                 </div>
                         
-                                {/* Description */}
-                                <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
-                                    {founder.description}
-                                </p>
-
-                                {/* Expertise */}
-                                <div>
-                                    <h4 className="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-3">
-                                        EXPERTISE
-                                    </h4>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        {founder.expertise.map((skill, skillIndex) => (
-                                            <div 
-                                                key={skillIndex}
-                                                className="flex items-center gap-2 bg-white/60 dark:bg-slate-800/60 rounded-lg px-3 py-2 border border-slate-200/50 dark:border-slate-600/50"
-                                            >
-                                                <span className="text-blue-600 dark:text-blue-400">
-                                                    {getExpertiseIcon(skill)}
-                                                </span>
-                                                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                                                    {skill}
-                                                </span>
+                                {/* Visual Icon Row - Education (Orange) + Experience (Emerald) */}
+                                {(founder.education || founder.highlights) && (
+                                    <div className="flex flex-wrap gap-3">
+                                        {/* Education Icons - Orange/Amber */}
+                                        {founder.education?.map((edu, eduIndex) => (
+                                            <div key={`edu-${eduIndex}`} className="group relative">
+                                                <div className="w-10 h-10 flex items-center justify-center bg-gradient-to-br from-amber-500 to-orange-500 rounded-full text-white cursor-pointer hover:scale-110 hover:shadow-lg hover:shadow-amber-500/30 transition-all duration-200">
+                                                    {getEducationIcon(edu.icon)}
+                                                </div>
+                                                {/* Tooltip */}
+                                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-medium rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-10 shadow-lg">
+                                                    {edu.degree}
+                                                    <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900 dark:border-t-white" />
+                                                </div>
+                                            </div>
+                                        ))}
+                                        {/* Experience/Highlights Icons - Emerald/Teal */}
+                                        {founder.highlights?.map((highlight, hIndex) => (
+                                            <div key={`hl-${hIndex}`} className="group relative">
+                                                <div className="w-10 h-10 flex items-center justify-center bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full text-white cursor-pointer hover:scale-110 hover:shadow-lg hover:shadow-emerald-500/30 transition-all duration-200">
+                                                    {getHighlightIcon(highlight.icon)}
+                                                </div>
+                                                {/* Tooltip */}
+                                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-medium rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-10 shadow-lg max-w-[200px] text-center">
+                                                    {highlight.text}
+                                                    <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900 dark:border-t-white" />
+                                                </div>
                                             </div>
                                         ))}
                                     </div>
+                                )}
+
+                                {/* Fallback to description if no education/highlights */}
+                                {(!founder.education || founder.education.length === 0) &&
+                                 (!founder.highlights || founder.highlights.length === 0) &&
+                                 founder.description && (
+                                    <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
+                                        {founder.description}
+                                    </p>
+                                )}
+
+                                {/* Expertise - Compact Pills */}
+                                <div className="flex flex-wrap gap-2">
+                                    {founder.expertise.slice(0, 4).map((skill, skillIndex) => (
+                                        <span
+                                            key={skillIndex}
+                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-500/10 to-purple-500/10 dark:from-blue-500/20 dark:to-purple-500/20 rounded-full text-xs font-medium text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-700/50"
+                                        >
+                                            <span className="text-blue-500 dark:text-blue-400">
+                                                {getExpertiseIcon(skill)}
+                                            </span>
+                                            {skill}
+                                        </span>
+                                    ))}
                                 </div>
-                        
-                                {/* Vision Statement - แบบเดิมที่ชอบ */}
-                                <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-slate-800 dark:to-slate-700 rounded-xl p-6 border-l-4 border-blue-500">
-                                    <h4 className="flex items-center gap-2 text-sm font-semibold text-blue-600 dark:text-blue-400 mb-3">
-                                        <FaLightbulb className="w-4 h-4" />
-                                        Vision
-                                    </h4>
-                                    <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                                        {founder.vision}
+
+                                {/* Vision Statement - Compact Quote Style */}
+                                <div className="relative pl-4 border-l-2 border-blue-500">
+                                    <FaLightbulb className="absolute -left-2.5 top-0 w-4 h-4 text-blue-500 bg-slate-50 dark:bg-slate-900" />
+                                    <p className="text-sm text-slate-600 dark:text-slate-400 italic line-clamp-3">
+                                        &ldquo;{founder.vision.length > 150 ? founder.vision.substring(0, 150) + '...' : founder.vision}&rdquo;
                                     </p>
                                 </div>
                             </div>

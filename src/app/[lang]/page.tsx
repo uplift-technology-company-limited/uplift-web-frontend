@@ -127,17 +127,53 @@ const getPortfolioData = async (locale: string) => {
   }
 };
 
-// Load Stats data by section - TODO: Use this when StatsCards component is refactored
-// const getStatsData = async (locale: string) => {
-//   try {
-//     const statsData = await import(`@/data/homepage/stats/${locale}.json`);
-//     return statsData.default;
-//   } catch (error) {
-//     console.warn(`Failed to load stats/${locale}.json, falling back to English`, error);
-//     const fallbackData = await import(`@/data/homepage/stats/en.json`);
-//     return fallbackData.default;
-//   }
-// };
+// Load DemoApp data by section
+const getDemoAppData = async (locale: string) => {
+  try {
+    const demoAppData = await import(`@/data/homepage/demo-app/${locale}.json`);
+    return demoAppData.default;
+  } catch (error) {
+    console.warn(`Failed to load demo-app/${locale}.json, falling back to English`, error);
+    const fallbackData = await import(`@/data/homepage/demo-app/en.json`);
+    return fallbackData.default;
+  }
+};
+
+// Load Architecture data by section
+const getArchitectureData = async (locale: string) => {
+  try {
+    const architectureData = await import(`@/data/homepage/architecture/${locale}.json`);
+    return architectureData.default;
+  } catch (error) {
+    console.warn(`Failed to load architecture/${locale}.json, falling back to English`, error);
+    const fallbackData = await import(`@/data/homepage/architecture/en.json`);
+    return fallbackData.default;
+  }
+};
+
+// Load Product data by section
+const getProductData = async (locale: string) => {
+  try {
+    const productData = await import(`@/data/homepage/product/${locale}.json`);
+    return productData.default;
+  } catch (error) {
+    console.warn(`Failed to load product/${locale}.json, falling back to English`, error);
+    const fallbackData = await import(`@/data/homepage/product/en.json`);
+    return fallbackData.default;
+  }
+};
+
+// Load FounderVision data by section
+const getFounderVisionData = async (locale: string) => {
+  try {
+    const founderVisionData = await import(`@/data/homepage/founder-vision/${locale}.json`);
+    return founderVisionData.default;
+  } catch (error) {
+    console.warn(`Failed to load founder-vision/${locale}.json, falling back to English`, error);
+    const fallbackData = await import(`@/data/homepage/founder-vision/en.json`);
+    return fallbackData.default;
+  }
+};
 
 // Generate static params for en and th
 export function generateStaticParams() {
@@ -216,11 +252,13 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
   const faqData = await getFAQData(lang);
   const techStackData = await getTechStackData(lang);
   const portfolioData = await getPortfolioData(lang);
-  // TODO: statsData will be used when StatsCards component is refactored
-  // const statsData = await getStatsData(lang);
+  const demoAppData = await getDemoAppData(lang);
+  const architectureData = await getArchitectureData(lang);
+  const productData = await getProductData(lang);
+  const founderVisionData = await getFounderVisionData(lang);
 
   // Extract content sections - data is already validated in getHomepageData
-  const { hero: heroContent, solution: solutionContent } = homepageData;
+  const { hero: heroContent } = homepageData;
 
   // JSON-LD Structured Data for SEO
   const organizationSchema = {
@@ -330,7 +368,7 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
   };
 
   return (
-    <div className="w-full overflow-x-hidden max-w-full">
+    <>
       {/* JSON-LD Structured Data for SEO */}
       <script
         type="application/ld+json"
@@ -353,39 +391,39 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
       <OAuthSuccessHandler />
       <Nav />
 
-      <main className="w-full inset-0 overflow-x-hidden max-w-full">
+      <main className="w-full overflow-x-hidden max-w-full">
         {/* Hero Section */}
         <Hero heroContent={heroContent} lang={lang} />
 
         {/* Problems Section */}
         <Problems data={problemsData} />
 
-        {/* Solution Section */}
-        <Solution data={solutionContent} />
+        {/* Solution Section - ดึงข้อมูลจาก innovation-mock (highlight: true) */}
+        <Solution lang={lang} />
 
         {/* Best Practice Section */}
         <BestPractice data={portfolioData} />
 
         {/* Demo App Section */}
-        <DemoApp />
+        <DemoApp data={demoAppData} />
 
         {/* Tech Stack Section */}
         <TechStack data={techStackData} />
 
         {/* Solution Architecture Section */}
-        <SolutionArchitecture />
+        <SolutionArchitecture data={architectureData} />
 
         {/* Product Section */}
-        <Product />
+        <Product lang={lang} data={productData} />
 
         {/* Founder Vision Section */}
-        <FounderVision lang={lang} />
+        <FounderVision lang={lang} data={founderVisionData} />
 
         {/* FAQ Section */}
         <FAQ data={faqData} />
       </main>
 
       <Footer />
-    </div>
+    </>
   );
 }

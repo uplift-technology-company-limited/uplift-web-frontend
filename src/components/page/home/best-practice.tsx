@@ -35,11 +35,11 @@ export function BestPractice({ data }: BestPracticeProps) {
   };
 
   return (
-    <section className="py-20 bg-background">
+    <section id="portfolio" aria-labelledby="portfolio-title" className="py-20 bg-background">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           {/* Header */}
           <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+            <h2 id="portfolio-title" className="text-4xl md:text-5xl font-bold mb-4">
               <span className="bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-400 dark:to-cyan-400 bg-clip-text text-transparent">
                 {title}
               </span>

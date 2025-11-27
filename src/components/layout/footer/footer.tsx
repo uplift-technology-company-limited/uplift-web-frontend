@@ -2,8 +2,11 @@
 import React from 'react'
 import { FaGithub, FaTwitter, FaLinkedin, FaEnvelope, FaBriefcase, FaFacebook, FaInstagram } from 'react-icons/fa'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 const Footer = () => {
+  const pathname = usePathname();
+  const lang = pathname?.split('/')[1] || 'th';
   const socialLinks = [
     { href: "https://github.com/uplift-technology-company-limited", icon: FaGithub, label: "GitHub" },
     { href: "#", icon: FaTwitter, label: "Twitter" },
@@ -15,18 +18,18 @@ const Footer = () => {
   ];
 
   const companyLinks = [
-    { name: "Story", href: "/story" },
-    { name: "Service", href: "/service" },
-    { name: "Innovation", href: "/innovation" },
-    { name: "Solutions", href: "/solutions" },
-    { name: "Vision", href: "/vision" },
-    { name: "Consult", href: "/consult" },
+    { name: "Story", href: `/${lang}/story` },
+    { name: "Service", href: `/${lang}/service` },
+    { name: "Innovation", href: `/${lang}/innovation` },
+    { name: "Solutions", href: `/${lang}/solutions` },
+    { name: "Vision", href: `/${lang}/vision` },
+    { name: "Consult", href: `/${lang}/consult` },
   ];
 
   const legalLinks = [
-    { name: "Privacy", href: "/legal/privacy" },
-    { name: "Terms", href: "/legal/terms" },
-    { name: "Cookies", href: "/legal/cookies" },
+    { name: "Privacy", href: `/${lang}/legal/privacy` },
+    { name: "Terms", href: `/${lang}/legal/terms` },
+    { name: "Cookies", href: `/${lang}/legal/cookies` },
   ];
 
   return (

@@ -1,0 +1,25 @@
+{
+  "badge": "FOUNDER'S VISION",
+  "title": {
+    "highlight": "Born from Frustration,",
+    "normal": "Built with Purpose."
+  },
+  "missions": [
+    {
+      "icon": "target",
+      "text": "Build software that actually works, not just sounds good"
+    },
+    {
+      "icon": "shield",
+      "text": "Create a culture that values workers as much as clients"
+    },
+    {
+      "icon": "zap",
+      "text": "Set new industry standards where quality is normal, not special"
+    }
+  ],
+  "cta": {
+    "primary": "See Our Work",
+    "secondary": "Our Team"
+  }
+}
