@@ -3,25 +3,34 @@ module.exports = {
   siteUrl: 'https://uplifttech.store',
   generateRobotsTxt: true,
   sitemapSize: 7000,
-  
-  // Exclude admin, API, and test routes
+
+  // Exclude non-public routes
   exclude: [
     '/admin/*',
-    '/api/*', 
+    '/api/*',
     '/test/*',
+    '/test-liff',
     '/private/*',
     '/auth/*',
+    '/user/*',
     '/coming-soon',
-    '/repp' // deprecated route
+    '*/sitemap.xml', // Prevent sitemap from being in sitemap
   ],
 
   // Generate index sitemap
   generateIndexSitemap: true,
-  
+
   // Custom transformation for better SEO
   transform: async (config, path) => {
-    // Skip hidden/test routes
-    if (path.includes('/test/') || path.includes('/private/')) {
+    // Skip hidden/test/private routes
+    if (
+      path.includes('/test') ||
+      path.includes('/private') ||
+      path.includes('/auth') ||
+      path.includes('/user') ||
+      path.includes('/admin') ||
+      path.includes('sitemap')
+    ) {
       return null
     }
 
@@ -29,16 +38,36 @@ module.exports = {
     let priority = 0.7
     let changefreq = 'weekly'
 
-    if (path === '/') {
+    // Home pages (both /en and /th)
+    if (path === '/' || path === '/en' || path === '/th') {
       priority = 1.0
       changefreq = 'daily'
-    } else if (['/innovation', '/service', '/solutions'].includes(path)) {
+    }
+    // Main service pages
+    else if (
+      path.match(/^\/(en|th)\/(innovation|service|solutions)$/) ||
+      path.match(/^\/(innovation|service|solutions)$/)
+    ) {
       priority = 0.9
       changefreq = 'daily'
-    } else if (['/story', '/vision'].includes(path)) {
+    }
+    // Company pages
+    else if (
+      path.match(/^\/(en|th)\/(story|vision|company|teams|consult)$/) ||
+      path.match(/^\/(story|vision|company|teams|consult)$/)
+    ) {
       priority = 0.8
-      changefreq = 'monthly'
-    } else if (path.startsWith('/legal/')) {
+      changefreq = 'weekly'
+    }
+    // Dynamic detail pages (innovation/[slug], service/[slug], etc.)
+    else if (
+      path.match(/^\/(en|th)\/(innovation|service|solutions|teams)\/[^/]+$/)
+    ) {
+      priority = 0.7
+      changefreq = 'weekly'
+    }
+    // Legal pages
+    else if (path.includes('/legal/')) {
       priority = 0.3
       changefreq = 'yearly'
     }
@@ -51,57 +80,12 @@ module.exports = {
     }
   },
 
-  // Additional paths for dynamic routes (will be populated by API)
-  additionalPaths: async (config) => {
-    const paths = []
-    
-    try {
-      // Add innovation dynamic routes
-      const innovations = ['smart-erp-system', 'modern-pos-solution', 'web-app-platform']
-      innovations.forEach(slug => {
-        paths.push({
-          loc: `/innovation/${slug}`,
-          changefreq: 'weekly',
-          priority: 0.8,
-          lastmod: new Date().toISOString(),
-        })
-      })
-
-      // Add service dynamic routes (if you have them)
-      const services = ['web-development', 'mobile-app', 'consulting']
-      services.forEach(slug => {
-        paths.push({
-          loc: `/service/${slug}`,
-          changefreq: 'weekly', 
-          priority: 0.8,
-          lastmod: new Date().toISOString(),
-        })
-      })
-
-      // Add i18n routes
-      const mainRoutes = ['/', '/innovation', '/service', '/solutions', '/story', '/vision']
-      mainRoutes.forEach(route => {
-        paths.push({
-          loc: `/en${route === '/' ? '' : route}`,
-          changefreq: route === '/' ? 'daily' : 'weekly',
-          priority: route === '/' ? 1.0 : 0.8,
-          lastmod: new Date().toISOString(),
-        })
-      })
-
-    } catch (error) {
-      console.warn('Error generating additional sitemap paths:', error)
-    }
-
-    return paths
-  },
-
   robotsTxtOptions: {
     policies: [
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/admin', '/api', '/test', '/private'],
+        disallow: ['/admin', '/api', '/test', '/private', '/auth', '/user'],
       },
       // Allow AI crawlers
       {
@@ -109,16 +93,13 @@ module.exports = {
         allow: '/',
       },
       {
-        userAgent: 'ClaudeBot', 
+        userAgent: 'ClaudeBot',
         allow: '/',
       },
       {
         userAgent: 'Baiduspider',
         allow: '/',
       }
-    ],
-    additionalSitemaps: [
-      'https://uplifttech.store/sitemap.xml',
     ],
   }
 };

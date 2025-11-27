@@ -5,6 +5,8 @@ Disallow: /admin
 Disallow: /api
 Disallow: /test
 Disallow: /private
+Disallow: /auth
+Disallow: /user
 
 # GPTBot
 User-agent: GPTBot
