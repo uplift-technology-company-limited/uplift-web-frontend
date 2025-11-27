@@ -5,13 +5,13 @@ import Link from 'next/link'
 
 const Footer = () => {
   const socialLinks = [
-    { href: "#", icon: FaGithub, label: "GitHub" },
+    { href: "https://github.com/uplift-technology-company-limited", icon: FaGithub, label: "GitHub" },
     { href: "#", icon: FaTwitter, label: "Twitter" },
     { href: "#", icon: FaLinkedin, label: "LinkedIn" },
-    { href: "#", icon: FaFacebook, label: "Facebook" },
+    { href: "https://www.facebook.com/uplifttech", icon: FaFacebook, label: "Facebook" },
     { href: "#", icon: FaInstagram, label: "Instagram" },
     { href: "https://www.fastwork.co/user/uplifttech", icon: FaBriefcase, label: "Fastwork" },
-    { href: "mailto:uplifttechbiz@gmail.com", icon: FaEnvelope, label: "Email" },
+    { href: "mailto:official@uplifttech.co", icon: FaEnvelope, label: "Email" },
   ];
 
   const companyLinks = [
@@ -43,7 +43,7 @@ const Footer = () => {
               Transform your business with cutting-edge technology solutions.
             </p>
             <div className="space-y-2 text-sm text-muted-foreground">
-              <p>uplifttechbiz@gmail.com</p>
+              <p>official@uplifttech.co</p>
               <p>+66 (093) 130-4223</p>
               <p>Chonburi, Thailand</p>
             </div>

@@ -1,4 +1,6 @@
-// Functional Specialized Button - SSR Compatible
+'use client'
+
+// Functional Specialized Button - Client Component
 import React, { forwardRef } from 'react'
 import { cn } from '@/lib/utils'
 

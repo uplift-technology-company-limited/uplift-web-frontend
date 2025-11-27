@@ -81,7 +81,7 @@ export default function FloatingActionButton() {
           {/* AnimatedThemeToggler Button */}
           <AnimatedThemeToggler
             className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:rotate-12 flex-shrink-0 bg-gradient-to-br from-amber-500 to-orange-500 text-white"
-            onClick={() => setIsOpen(false)}
+            onAfterToggle={() => setIsOpen(false)}
           />
         </div>
       </div>
