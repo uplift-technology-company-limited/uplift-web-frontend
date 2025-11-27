@@ -5,7 +5,6 @@ import { ScrollIndicator } from "./scroll-indicator";
 import { HeroAnimate, AnimatedContent } from "./hero-animate";
 import { Badge, Heading, Subheading, ActionButtons } from "./content";
 import { GlobeWithStats } from "./hover-stats";
-import { StatsCards } from "@/components/page/home/stats-cards";
 
 interface HeroProps {
   heroContent: any; // Define a more specific type if needed
@@ -16,6 +15,8 @@ export const Hero = React.forwardRef<HTMLDivElement, HeroProps>(({ heroContent, 
   return (
     <section
       ref={ref}
+      id="hero"
+      aria-label="Hero - UPLIFT Technology"
       className="relative z-10 px-6 py-24 md:py-12 w-full mx-auto h-screen flex items-center overflow-hidden"
     >
      

@@ -30,7 +30,7 @@ export function FAQ({ data }: FAQProps) {
   };
 
   return (
-    <section className="py-20 bg-gradient-to-b from-background to-muted/20">
+    <section id="faq" aria-labelledby="faq-title" className="py-20 bg-gradient-to-b from-background to-muted/20">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
           {/* Left Side - Header (Sticky on Desktop) */}
@@ -44,7 +44,7 @@ export function FAQ({ data }: FAQProps) {
             <div className="inline-flex items-center justify-center p-3 bg-primary/10 rounded-full mb-4">
               <HelpCircle className="w-6 h-6 text-primary" />
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+            <h2 id="faq-title" className="text-4xl md:text-5xl font-bold mb-4">
               {title}
             </h2>
             <p className="text-lg text-muted-foreground mb-8">

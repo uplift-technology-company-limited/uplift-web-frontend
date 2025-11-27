@@ -1,0 +1,40 @@
+{
+  "badge": "Enterprise Grade",
+  "title": "Solution Architecture",
+  "subtitle": "Enterprise-level infrastructure that ordinary companies can't achieve",
+  "description": "With high-level scalability, reliability, and automation",
+  "features": [
+    {
+      "title": "Kubernetes Orchestration",
+      "description": "Enterprise-level container orchestration with auto-scaling and self-healing",
+      "icon": "kubernetes",
+      "metrics": ["99.9% Uptime", "Auto-scaling", "Self-healing"],
+      "highlights": ["Container Orchestration", "Load Balancing", "Rolling Updates", "Service Discovery"]
+    },
+    {
+      "title": "Infrastructure as Code",
+      "description": "Terraform for automated and reproducible infrastructure management",
+      "icon": "terraform",
+      "metrics": ["Deploy in Minutes", "Version Controlled", "100% Reproducible"],
+      "highlights": ["Automated Deployment", "Version Control", "Multi-Cloud Support", "State Management"]
+    },
+    {
+      "title": "Microservices Architecture",
+      "description": "Scalable and maintainable distributed architecture with service mesh",
+      "icon": "network",
+      "metrics": ["Independent Scaling", "Fault Isolation", "Tech Flexibility"],
+      "highlights": ["Service Mesh", "API Gateway", "Event-Driven", "Circuit Breaker"]
+    }
+  ],
+  "techLabel": "Powered by industry-leading technologies:",
+  "stats": [
+    { "label": "Uptime", "value": "99.9%" },
+    { "label": "Auto-scaling", "value": "< 30s" },
+    { "label": "Deploy Time", "value": "< 5min" },
+    { "label": "Cost Saving", "value": "40%" }
+  ],
+  "cta": {
+    "text": "Ready to upgrade your infrastructure?",
+    "button": "Consult an Expert"
+  }
+}

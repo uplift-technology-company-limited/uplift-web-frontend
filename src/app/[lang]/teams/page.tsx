@@ -3,8 +3,9 @@ import Nav from "@/components/basic/nav/resnav";
 import Footer from "@/components/layout/footer/footer";
 import AboutSection from "@/components/page/story/me";
 import AgileSection from "@/components/page/teams/agile-section";
+import MembersCarousel from "@/components/page/teams/members-carousel";
 import { Mail, Users, ArrowRight } from 'lucide-react';
-import { personalData } from '@/data/personal-data';
+import { AnimateEffect } from "@/components/common/animate-effect";
 
 // Dynamic import of team data
 const getTeamsData = async (locale: string) => {
@@ -57,29 +58,66 @@ const TeamsPage = async ({ params }: { params: Promise<{ lang: string }> }) => {
         <>
             <Nav />
             <main className="relative w-full overflow-x-hidden">
-                {/* Hero Section */}
-                <section className="relative py-24 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/50 dark:to-purple-950/50">
-                    <div className="max-w-6xl mx-auto px-4 text-center">
-                        <div className="inline-flex items-center justify-center p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full mb-8">
-                            <Users className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-                        </div>
+                {/* Hero Section - Modern Design */}
+                <section className="relative py-28 md:py-36 overflow-hidden">
+                    {/* Background Effects */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50/50 to-cyan-50 dark:from-slate-900 dark:via-blue-950/30 dark:to-slate-900" />
+                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                        <div className="absolute top-20 right-20 w-96 h-96 bg-blue-500/10 dark:bg-blue-500/5 rounded-full blur-3xl" />
+                        <div className="absolute bottom-20 left-20 w-96 h-96 bg-purple-500/10 dark:bg-purple-500/5 rounded-full blur-3xl" />
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/5 dark:bg-cyan-500/3 rounded-full blur-3xl" />
+                    </div>
 
-                        <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                            {teamsData.hero.title}
-                        </h1>
+                    <div className="relative z-10 max-w-6xl mx-auto px-4 text-center">
+                        <AnimateEffect index={0}>
+                            {/* Badge */}
+                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 mb-8">
+                                <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                                <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">
+                                    {lang === 'th' ? 'ทีมงานของเรา' : 'Our Team'}
+                                </span>
+                            </div>
 
-                        <p className="text-xl text-slate-600 dark:text-slate-300 mb-8">
-                            {teamsData.hero.subtitle}
-                        </p>
+                            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+                                <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 dark:from-blue-400 dark:via-purple-400 dark:to-cyan-400 bg-clip-text text-transparent">
+                                    {teamsData.hero.title}
+                                </span>
+                            </h1>
 
-                        <p className="text-lg text-slate-500 dark:text-slate-400 max-w-3xl mx-auto">
-                            {teamsData.hero.description}
-                        </p>
+                            <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 mb-6 font-medium">
+                                {teamsData.hero.subtitle}
+                            </p>
+
+                            <p className="text-lg text-slate-500 dark:text-slate-400 max-w-3xl mx-auto leading-relaxed">
+                                {teamsData.hero.description}
+                            </p>
+                        </AnimateEffect>
+                    </div>
+
+                    {/* Curved Divider */}
+                    <div className="absolute bottom-0 left-0 right-0">
+                        <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto">
+                            <path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" className="fill-slate-50 dark:fill-slate-900" />
+                        </svg>
                     </div>
                 </section>
 
-                {/* Team Section */}
-                <AboutSection founders={teamsData.founders} />
+                {/* Founders Section */}
+                <AboutSection founders={teamsData.founders} lang={lang} />
+
+                {/* Curved Divider between Founders and Team Members */}
+                {teamsData.members && teamsData.members.length > 0 && (
+                    <div className="relative bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
+                        <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto">
+                            <path d="M0 0L60 10C120 20 240 40 360 50C480 60 600 60 720 55C840 50 960 40 1080 35C1200 30 1320 30 1380 30L1440 30V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" className="fill-white dark:fill-slate-900" />
+                        </svg>
+                    </div>
+                )}
+
+                {/* Team Members Carousel */}
+                {teamsData.members && teamsData.members.length > 0 && (
+                    <MembersCarousel members={teamsData.members} lang={lang} />
+                )}
 
                 {/* Agile Methodology Section */}
                 <AgileSection lang={lang} />

@@ -1,0 +1,39 @@
+{
+  "badge": "Mobile Development",
+  "title": {
+    "highlight": "Mobile Apps",
+    "normal": "That Scale"
+  },
+  "description": "Build modern mobile applications for both iOS and Android with cutting-edge technology and user-centered design approach",
+  "features": [
+    {
+      "title": "Native Development",
+      "description": "Built with React Native and Flutter",
+      "icon": "code"
+    },
+    {
+      "title": "UX/UI Design",
+      "description": "User experience focused design",
+      "icon": "palette"
+    },
+    {
+      "title": "Performance",
+      "description": "Optimized for speed and efficiency",
+      "icon": "rocket"
+    },
+    {
+      "title": "Cross Platform",
+      "description": "One codebase for all platforms",
+      "icon": "mobile"
+    }
+  ],
+  "stats": [
+    { "value": "10+", "label": "Mobile Apps" },
+    { "value": "100%", "label": "Client Satisfaction" },
+    { "value": "24/7", "label": "Support" }
+  ],
+  "mockup": {
+    "appName": "Uplift App",
+    "tagline": "Built with modern technology"
+  }
+}

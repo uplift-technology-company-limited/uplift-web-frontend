@@ -18,19 +18,14 @@ interface ProblemData {
   items: ProblemItem[];
 }
 
-interface SolutionData {
-  title: string;
-  subtitle: string;
-  items: any[];
-}
-
 // Progressive enhancement wrapper components with data props
 export const ProblemsAnimated = ({ data }: { data: ProblemData }) => {
   return <Problems data={data} />;
 };
 
-export const SolutionAnimated = ({ data }: { data: SolutionData }) => {
-  return <SolutionSSR data={data} />;
+// SolutionSSR now loads its own data from innovation-mock (highlight: true)
+export const SolutionAnimated = ({ lang = 'th' }: { lang?: string }) => {
+  return <SolutionSSR lang={lang} />;
 };
 
 const Particles = dynamic(() => import('@/components/page/home/hero/particles').then(mod => ({ default: mod.Particles })), {

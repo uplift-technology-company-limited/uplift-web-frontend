@@ -1,8 +1,181 @@
 import { InnovationPageData } from '@/types/innovation'
 
+/**
+ * Innovation Mock Data
+ *
+ * NOTE: ความแตกต่างระหว่าง routes:
+ * - /innovation = หน้ารวม Products ทั้งหมด (ดึงจากไฟล์นี้)
+ * - /innovation/[slug] = หน้ารายละเอียด Product
+ * - Solution section (Home) = Products ที่มี highlight: true เท่านั้น
+ * - /solutions = Blog/News (คนละอย่าง ไม่เกี่ยวกับไฟล์นี้!)
+ */
 export const innovationMockData: Record<string, InnovationPageData> = {
+  // ============================================
+  // HIGHLIGHT PRODUCTS (แสดงใน Home Solution section)
+  // ============================================
+  'laundry-management': {
+    slug: 'laundry-management',
+    highlight: true,
+    icon: 'FaShippingFast',
+    bgColor: 'bg-gradient-to-br from-blue-500/20 to-cyan-500/20',
+    gridSpan: '2x1', // กว้าง 2 columns
+    variants: {
+      features: 'default',
+      howItWorks: 'default',
+      problem: 'default',
+      pricing: 'default',
+    },
+    hero: {
+      badge: '🧺 Business Solution',
+      title: 'ระบบบริหารการซักรีด',
+      subtitle: 'Laundry Management System',
+      description: 'ระบบบริหารจัดการการซักรีดแบบครบวงจร พร้อมด้วยระบบติดตามสถานะการดำเนินงานแบบเรียลไทม์ รองรับการขยายธุรกิจระดับเครือข่ายทั่วประเทศ',
+      cta: {
+        primary: { text: 'ขอใบเสนอราคา', href: '#contact' },
+        secondary: { text: 'ดูรายละเอียด', href: '#features' },
+      },
+      image: 'https://uplift-uploads.s3.ap-southeast-1.amazonaws.com/admin/1755080060582-s7qvzu2t2rh-view-laundromat-room-with-washing-machines.jpg',
+    },
+    features: [
+      { id: 1, title: 'ระบบติดตามสถานะแบบ Real-time', description: 'ติดตามสถานะการซักรีดได้ตลอดเวลา ตั้งแต่รับเข้าจนถึงส่งมอบ', icon: 'MapPin' },
+      { id: 2, title: 'การจัดการลูกค้าและคำสั่งซื้อ', description: 'ระบบจัดการข้อมูลลูกค้าและคำสั่งซื้อแบบครบวงจร', icon: 'Users' },
+      { id: 3, title: 'ระบบบัญชีและรายงาน', description: 'รายงานการเงินและการดำเนินงานที่ครบถ้วน', icon: 'BarChart3' },
+      { id: 4, title: 'รองรับหลายสาขา', description: 'บริหารจัดการหลายสาขาได้จากที่เดียว', icon: 'Building2' },
+    ],
+    pricing: [
+      { name: 'Starter', price: '4,900', currency: '฿', period: 'month', description: 'สำหรับร้านเดี่ยว', features: ['1 สาขา', 'รายงานพื้นฐาน', 'Email support'], cta: { text: 'เริ่มต้น', href: '#contact' } },
+      { name: 'Business', price: '9,900', currency: '฿', period: 'month', description: 'สำหรับเครือข่าย', features: ['5 สาขา', 'รายงานขั้นสูง', 'Priority support', 'API access'], highlighted: true, cta: { text: 'ติดต่อเรา', href: '#contact' } },
+    ],
+    metadata: {
+      title: 'ระบบบริหารการซักรีด - Laundry Management System',
+      description: 'ระบบติดตามการซักรีดครบวงจร รองรับเครือข่ายระดับประเทศ',
+      keywords: ['Laundry Management', 'ระบบซักรีด', 'POS ซักรีด'],
+    },
+  },
+  'fitness-management': {
+    slug: 'fitness-management',
+    highlight: true,
+    icon: 'FaDumbbell',
+    bgColor: 'bg-gradient-to-br from-green-500/20 to-emerald-500/20',
+    gridSpan: '1x1', // ปกติ 1 column
+    variants: {
+      features: 'default',
+      howItWorks: 'default',
+      problem: 'default',
+      pricing: 'default',
+    },
+    hero: {
+      badge: '💪 Fitness Solution',
+      title: 'ระบบจัดการฟิตเนส',
+      subtitle: 'Fitness Center Management',
+      description: 'ระบบบริหารจัดการศูนย์ออกกำลังกายแบบสมาร์ท ครอบคลุมการจัดการสมาชิก อุปกรณ์ และคลาสเรียนต่างๆ',
+      cta: {
+        primary: { text: 'ทดลองใช้ฟรี', href: '#contact' },
+        secondary: { text: 'ดูฟีเจอร์', href: '#features' },
+      },
+      image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200&h=600&fit=crop&auto=format',
+    },
+    features: [
+      { id: 1, title: 'จัดการสมาชิกและแพ็กเกจ', description: 'ระบบสมาชิกครบครัน รองรับหลายแพ็กเกจ', icon: 'Users' },
+      { id: 2, title: 'จองคลาสออนไลน์', description: 'สมาชิกจองคลาสได้เองผ่านแอป', icon: 'Calendar' },
+      { id: 3, title: 'ระบบเข้า-ออก IoT', description: 'เชื่อมต่อประตูและอุปกรณ์ IoT', icon: 'Wifi' },
+      { id: 4, title: 'รายงานการใช้งาน', description: 'วิเคราะห์พฤติกรรมและแนวโน้มสมาชิก', icon: 'LineChart' },
+    ],
+    pricing: [
+      { name: 'Basic', price: '3,900', currency: '฿', period: 'month', description: 'ฟิตเนสขนาดเล็ก', features: ['100 สมาชิก', 'จองคลาสพื้นฐาน', 'รายงานมาตรฐาน'], cta: { text: 'เริ่มต้น', href: '#contact' } },
+      { name: 'Pro', price: '7,900', currency: '฿', period: 'month', description: 'ฟิตเนสขนาดกลาง', features: ['500 สมาชิก', 'IoT Integration', 'รายงานขั้นสูง', 'Mobile App'], highlighted: true, cta: { text: 'ติดต่อเรา', href: '#contact' } },
+    ],
+    metadata: {
+      title: 'ระบบจัดการฟิตเนส - Fitness Center Management',
+      description: 'ระบบบริหารฟิตเนส สมาชิก อุปกรณ์ คลาส แบบครบวงจร',
+      keywords: ['Fitness Management', 'Gym Software', 'ระบบฟิตเนส'],
+    },
+  },
+  'warehouse-management': {
+    slug: 'warehouse-management',
+    highlight: true,
+    icon: 'FaWarehouse',
+    bgColor: 'bg-gradient-to-br from-orange-500/20 to-amber-500/20',
+    gridSpan: '1x1', // ปกติ 1 column
+    variants: {
+      features: 'bento',
+      howItWorks: 'default',
+      problem: 'default',
+      pricing: 'default',
+    },
+    hero: {
+      badge: '📦 Warehouse Solution',
+      title: 'ระบบคลังสินค้า',
+      subtitle: 'Smart Warehouse Management',
+      description: 'ระบบบริหารคลังสินค้าอัตโนมัติที่เชื่อมต่อกับระบบ Automation เพื่อลดต้นทุนแรงงานและเพิ่มประสิทธิภาพ',
+      cta: {
+        primary: { text: 'ขอ Demo', href: '#contact' },
+        secondary: { text: 'ดูรายละเอียด', href: '#features' },
+      },
+      image: 'https://uplift-uploads.s3.ap-southeast-1.amazonaws.com/admin/1755081511881-7r0uq54z3v5-interior-large-distribution-warehouse-with-shelves-stacked-with-palettes-goods-ready-market.jpg',
+    },
+    features: [
+      { id: 1, title: 'จัดการสินค้าคงคลังอัตโนมัติ', description: 'ติดตามสต็อกแบบเรียลไทม์ ลดความผิดพลาด', icon: 'Package', image: 'https://uplift-uploads.s3.ap-southeast-1.amazonaws.com/admin/1755081511881-7r0uq54z3v5-interior-large-distribution-warehouse-with-shelves-stacked-with-palettes-goods-ready-market.jpg' },
+      { id: 2, title: 'เชื่อมต่อ Barcode/RFID', description: 'รองรับการสแกนบาร์โค้ดและ RFID', icon: 'Scan' },
+      { id: 3, title: 'ปรับปรุง Pick & Pack', description: 'เพิ่มประสิทธิภาพการหยิบและแพ็คสินค้า', icon: 'Truck' },
+      { id: 4, title: 'Dashboard แบบเรียลไทม์', description: 'ดูภาพรวมคลังสินค้าได้ทันที', icon: 'BarChart3' },
+    ],
+    pricing: [
+      { name: 'Standard', price: '9,900', currency: '฿', period: 'month', description: 'คลังขนาดเล็ก', features: ['1 คลัง', '1,000 SKU', 'Barcode'], cta: { text: 'เริ่มต้น', href: '#contact' } },
+      { name: 'Enterprise', price: '29,900', currency: '฿', period: 'month', description: 'คลังขนาดใหญ่', features: ['หลายคลัง', 'ไม่จำกัด SKU', 'RFID + Automation', 'API Integration'], highlighted: true, cta: { text: 'ติดต่อเรา', href: '#contact' } },
+    ],
+    metadata: {
+      title: 'ระบบคลังสินค้า - Warehouse Management System',
+      description: 'ระบบคลังสินค้าอัตโนมัติ เชื่อมต่อ Automation ลดต้นทุนแรงงาน',
+      keywords: ['WMS', 'Warehouse Management', 'ระบบคลังสินค้า'],
+    },
+  },
+  'retail-pos': {
+    slug: 'retail-pos',
+    highlight: true,
+    icon: 'FaCashRegister',
+    bgColor: 'bg-gradient-to-br from-purple-500/20 to-pink-500/20',
+    gridSpan: '2x1', // กว้าง 2 columns
+    variants: {
+      features: 'default',
+      howItWorks: 'default',
+      problem: 'default',
+      pricing: 'default',
+    },
+    hero: {
+      badge: '💳 Retail Solution',
+      title: 'ระบบ POS ค้าปลีก',
+      subtitle: 'Omnichannel Point of Sale',
+      description: 'ระบบจุดขายครบครันสำหรับขายหน้าร้านและออนไลน์ รองรับการจัดการหลายสาขาพร้อมระบบชำระเงินครบรูปแบบ',
+      cta: {
+        primary: { text: 'ทดลองใช้ฟรี', href: '#contact' },
+        secondary: { text: 'ดูราคา', href: '#pricing' },
+      },
+      image: 'https://uplift-uploads.s3.ap-southeast-1.amazonaws.com/admin/1755081810814-csakbmjowd6-possystemcashier.jpg',
+    },
+    features: [
+      { id: 1, title: 'ขายหลายช่องทาง', description: 'รวมการขายหน้าร้าน, ออนไลน์, Marketplace', icon: 'ShoppingCart', image: 'https://uplift-uploads.s3.ap-southeast-1.amazonaws.com/admin/1755081810814-csakbmjowd6-possystemcashier.jpg' },
+      { id: 2, title: 'ซิงค์สินค้าคงคลัง', description: 'สต็อกอัพเดทอัตโนมัติทุกช่องทาง', icon: 'RefreshCw' },
+      { id: 3, title: 'Payment Gateway', description: 'รับชำระเงินครบทุกรูปแบบ', icon: 'CreditCard' },
+      { id: 4, title: 'จัดการหลายสาขา', description: 'บริหารทุกสาขาจากระบบเดียว', icon: 'Building2' },
+    ],
+    pricing: [
+      { name: 'Basic', price: '2,900', currency: '฿', period: 'month', description: 'ร้านเดี่ยว', features: ['1 เครื่อง', '1 สาขา', 'รายงานพื้นฐาน'], cta: { text: 'เริ่มต้น', href: '#contact' } },
+      { name: 'Business', price: '7,900', currency: '฿', period: 'month', description: 'หลายสาขา', features: ['5 เครื่อง', '3 สาขา', 'Omnichannel', 'Analytics'], highlighted: true, cta: { text: 'ติดต่อเรา', href: '#contact' } },
+    ],
+    metadata: {
+      title: 'ระบบ POS ค้าปลีก - Retail Point of Sale',
+      description: 'ขายหน้าร้าน+ออนไลน์ จัดการหลายสาขา ชำระเงินครบรูปแบบ',
+      keywords: ['POS', 'Point of Sale', 'ระบบขาย', 'Retail'],
+    },
+  },
+
+  // ============================================
+  // OTHER PRODUCTS (แสดงเฉพาะในหน้า /innovation)
+  // ============================================
   'smart-erp-system': {
     slug: 'smart-erp-system',
+    highlight: false,
     variants: {
       features: 'default',
       howItWorks: 'default',
@@ -209,6 +382,7 @@ export const innovationMockData: Record<string, InnovationPageData> = {
   },
   'modern-pos-solution': {
     slug: 'modern-pos-solution',
+    highlight: false,
     variants: {
       features: 'bento',
       howItWorks: 'timeline',
@@ -367,6 +541,7 @@ export const innovationMockData: Record<string, InnovationPageData> = {
   },
   'web-app-platform': {
     slug: 'web-app-platform',
+    highlight: false,
     variants: {
       features: 'cards',
       howItWorks: 'cards',
@@ -530,6 +705,7 @@ export const innovationMockData: Record<string, InnovationPageData> = {
   },
   'uplift-mobile-app': {
     slug: 'uplift-mobile-app',
+    highlight: false,
     variants: {
       features: 'default',
       howItWorks: 'timeline',
@@ -731,6 +907,7 @@ export const innovationMockData: Record<string, InnovationPageData> = {
   },
   'ai-analytics-platform': {
     slug: 'ai-analytics-platform',
+    highlight: false,
     variants: {
       features: 'bento',
       howItWorks: 'cards',
@@ -930,6 +1107,7 @@ export const innovationMockData: Record<string, InnovationPageData> = {
   },
   'inventory-management': {
     slug: 'inventory-management',
+    highlight: false,
     variants: {
       features: 'cards',
       howItWorks: 'default',
@@ -1125,6 +1303,7 @@ export const innovationMockData: Record<string, InnovationPageData> = {
   },
   'crm-system': {
     slug: 'crm-system',
+    highlight: false,
     variants: {
       features: 'default',
       howItWorks: 'timeline',
@@ -1324,6 +1503,7 @@ export const innovationMockData: Record<string, InnovationPageData> = {
   },
   'e-commerce-solution': {
     slug: 'e-commerce-solution',
+    highlight: false,
     variants: {
       features: 'bento',
       howItWorks: 'cards',
