@@ -8,19 +8,23 @@ import FinalCtaSection from '@/components/page/innovation/final-cta'
 // Import from progressive loader
 import { Particles } from "@/components/common/progressive-loader"
 
-const Innovation = () => {
+interface InnovationPageProps {
+  params: Promise<{ lang: string }>
+}
+
+export default async function Innovation({ params }: InnovationPageProps) {
+  const { lang } = await params
+
   return (
     <div className="w-full overflow-x-hidden max-w-full">
       <Nav />
       <main className='w-full overflow-x-hidden max-w-full'>
         <Particles />
         <Hero />
-        <ProductsSection />
+        <ProductsSection lang={lang} />
         <FinalCtaSection />
       </main>
       <Footer />
     </div>
   )
 }
-
-export default Innovation
